@@ -11,3 +11,5 @@ riderModule.iml
 *.tar
 .secrets
 *.DotSettings.user
+Muddi.ShiftPlanner.Client/wwwroot/appsettings.Conductor.json
+frontend/config.conductor.json

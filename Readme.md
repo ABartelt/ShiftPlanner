@@ -69,11 +69,32 @@ See [deploy readme](./Docker/deployment/muddi-shift-planner/Readme.md)
 First install dotnet 10 sdk and docker, then:
 
 ```shell
-cd Docker/muddi-shiftplanner-compose/
+cd Docker/development/muddi-shift-planner-dev/
 docker compose up
 ```
 
 this will start up the services you need for development.
+
+### Conductor
+
+The repo ships a [Conductor](https://conductor.build) config in `.conductor/`. Each workspace runs on its own ports, while
+Postgres and Keycloak are shared via one docker compose stack (`muddi-shift-planner-dev`):
+
+| Service             | Port                  |
+|---------------------|-----------------------|
+| API                 | `$CONDUCTOR_PORT`     |
+| Blazor client       | `$CONDUCTOR_PORT + 1` |
+| Alerting            | `$CONDUCTOR_PORT + 2` |
+| Vue frontend        | `$CONDUCTOR_PORT + 3` |
+
+* `dev` starts the docker stack, the API and the Vue frontend
+* `dev-blazor` starts the docker stack, the API and the Blazor client
+* `alerting` starts the alerting service (needs the Telegram secret below)
+* `test` runs the .NET and frontend unit tests
+
+The setup script writes `frontend/config.conductor.json` and
+`Muddi.ShiftPlanner.Client/wwwroot/appsettings.Conductor.json` (both gitignored), so the clients use the local Keycloak and
+the API of their own workspace.
 
 ### Keycloak
 
