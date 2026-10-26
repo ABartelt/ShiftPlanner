@@ -17,7 +17,7 @@ namespace Muddi.ShiftPlanner.Server.Database.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "10.0.7")
+                .HasAnnotation("ProductVersion", "10.0.9")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -32,6 +32,107 @@ namespace Muddi.ShiftPlanner.Server.Database.Migrations
                         .HasName("pk_app_settings");
 
                     b.ToTable("app_settings", (string)null);
+                });
+
+            modelBuilder.Entity("Muddi.ShiftPlanner.Server.Database.Entities.NotificationChannelLinkEntity", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("Address")
+                        .IsRequired()
+                        .HasMaxLength(320)
+                        .HasColumnType("character varying(320)")
+                        .HasColumnName("address");
+
+                    b.Property<string>("Channel")
+                        .IsRequired()
+                        .HasMaxLength(16)
+                        .HasColumnType("character varying(16)")
+                        .HasColumnName("channel");
+
+                    b.Property<Guid>("EmployeeKeycloakId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("employee_keycloak_id");
+
+                    b.Property<bool>("Enabled")
+                        .HasColumnType("boolean")
+                        .HasColumnName("enabled");
+
+                    b.Property<DateTime>("LinkedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("linked_at");
+
+                    b.Property<string>("UnsubscribeToken")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("unsubscribe_token");
+
+                    b.HasKey("Id")
+                        .HasName("pk_notification_channel_links");
+
+                    b.HasIndex("UnsubscribeToken")
+                        .IsUnique()
+                        .HasDatabaseName("ix_notification_channel_links_unsubscribe_token");
+
+                    b.HasIndex("Channel", "Address")
+                        .HasDatabaseName("ix_notification_channel_links_channel_address");
+
+                    b.HasIndex("EmployeeKeycloakId", "Channel")
+                        .IsUnique()
+                        .HasDatabaseName("ix_notification_channel_links_employee_keycloak_id_channel");
+
+                    b.ToTable("notification_channel_links", (string)null);
+                });
+
+            modelBuilder.Entity("Muddi.ShiftPlanner.Server.Database.Entities.NotificationLinkCodeEntity", b =>
+                {
+                    b.Property<string>("Code")
+                        .HasMaxLength(16)
+                        .HasColumnType("character varying(16)")
+                        .HasColumnName("code");
+
+                    b.Property<string>("Channel")
+                        .IsRequired()
+                        .HasMaxLength(16)
+                        .HasColumnType("character varying(16)")
+                        .HasColumnName("channel");
+
+                    b.Property<Guid>("EmployeeKeycloakId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("employee_keycloak_id");
+
+                    b.Property<DateTime>("ExpiresAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("expires_at");
+
+                    b.HasKey("Code")
+                        .HasName("pk_notification_link_codes");
+
+                    b.ToTable("notification_link_codes", (string)null);
+                });
+
+            modelBuilder.Entity("Muddi.ShiftPlanner.Server.Database.Entities.NotificationPreferencesEntity", b =>
+                {
+                    b.Property<Guid>("EmployeeKeycloakId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("employee_keycloak_id");
+
+                    b.Property<bool>("RemindDayBefore")
+                        .HasColumnType("boolean")
+                        .HasColumnName("remind_day_before");
+
+                    b.Property<bool>("RemindShortBefore")
+                        .HasColumnType("boolean")
+                        .HasColumnName("remind_short_before");
+
+                    b.HasKey("EmployeeKeycloakId")
+                        .HasName("pk_notification_preferences");
+
+                    b.ToTable("notification_preferences", (string)null);
                 });
 
             modelBuilder.Entity("Muddi.ShiftPlanner.Server.Database.Entities.SeasonEntity", b =>
@@ -266,6 +367,104 @@ namespace Muddi.ShiftPlanner.Server.Database.Migrations
                     b.ToTable("shift_location_types", (string)null);
                 });
 
+            modelBuilder.Entity("Muddi.ShiftPlanner.Server.Database.Entities.ShiftNotificationEntity", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("ActionCode")
+                        .HasMaxLength(6)
+                        .HasColumnType("character varying(6)")
+                        .HasColumnName("action_code");
+
+                    b.Property<string>("ActionToken")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("action_token");
+
+                    b.Property<DateTime?>("ActionUsedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("action_used_at");
+
+                    b.Property<string>("Address")
+                        .IsRequired()
+                        .HasMaxLength(320)
+                        .HasColumnType("character varying(320)")
+                        .HasColumnName("address");
+
+                    b.Property<int>("Attempts")
+                        .HasColumnType("integer")
+                        .HasColumnName("attempts");
+
+                    b.Property<string>("Channel")
+                        .IsRequired()
+                        .HasMaxLength(16)
+                        .HasColumnType("character varying(16)")
+                        .HasColumnName("channel");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<Guid>("EmployeeKeycloakId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("employee_keycloak_id");
+
+                    b.Property<string>("Kind")
+                        .IsRequired()
+                        .HasMaxLength(16)
+                        .HasColumnType("character varying(16)")
+                        .HasColumnName("kind");
+
+                    b.Property<string>("LastError")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("last_error");
+
+                    b.Property<DateTime?>("ReleaseRequestedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("release_requested_at");
+
+                    b.Property<DateTime?>("SentAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("sent_at");
+
+                    b.Property<Guid?>("ShiftId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("shift_id");
+
+                    b.Property<DateTime>("ShiftStart")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("shift_start");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(16)
+                        .HasColumnType("character varying(16)")
+                        .HasColumnName("status");
+
+                    b.HasKey("Id")
+                        .HasName("pk_shift_notifications");
+
+                    b.HasIndex("ActionToken")
+                        .IsUnique()
+                        .HasDatabaseName("ix_shift_notifications_action_token");
+
+                    b.HasIndex("CreatedAt")
+                        .HasDatabaseName("ix_shift_notifications_created_at");
+
+                    b.HasIndex("Channel", "Address")
+                        .HasDatabaseName("ix_shift_notifications_channel_address");
+
+                    b.HasIndex("ShiftId", "EmployeeKeycloakId", "Kind", "ShiftStart", "Channel")
+                        .IsUnique()
+                        .HasDatabaseName("ix_shift_notifications_shift_id_employee_keycloak_id_kind_shif");
+
+                    b.ToTable("shift_notifications", (string)null);
+                });
+
             modelBuilder.Entity("Muddi.ShiftPlanner.Server.Database.Entities.ShiftTypeEntity", b =>
                 {
                     b.Property<Guid>("Id")
@@ -444,6 +643,17 @@ namespace Muddi.ShiftPlanner.Server.Database.Migrations
                     b.Navigation("Season");
 
                     b.Navigation("Type");
+                });
+
+            modelBuilder.Entity("Muddi.ShiftPlanner.Server.Database.Entities.ShiftNotificationEntity", b =>
+                {
+                    b.HasOne("Muddi.ShiftPlanner.Server.Database.Entities.ShiftEntity", "Shift")
+                        .WithMany()
+                        .HasForeignKey("ShiftId")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .HasConstraintName("fk_shift_notifications_shifts_shift_id");
+
+                    b.Navigation("Shift");
                 });
 
             modelBuilder.Entity("Muddi.ShiftPlanner.Server.Database.Entities.ShiftTypeEntity", b =>

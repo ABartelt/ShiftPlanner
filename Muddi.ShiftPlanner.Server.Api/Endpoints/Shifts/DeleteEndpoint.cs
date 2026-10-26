@@ -1,6 +1,7 @@
 ﻿using Muddi.ShiftPlanner.Server.Database.Contexts;
 using Muddi.ShiftPlanner.Shared;
 using Muddi.ShiftPlanner.Shared.Contracts.v1;
+using Muddi.ShiftPlanner.Shared.Extensions;
 
 namespace Muddi.ShiftPlanner.Server.Api.Endpoints.Shifts;
 
@@ -30,8 +31,7 @@ public class DeleteEndpoint : CrudDeleteEndpoint
 				await Send.ForbiddenAsync(ct);
 				return DeleteResponse.Other;
 			//Don't allow user to remove shifts after a certain time
-			//TODO This needs to be set via Api by an admin in the future
-			case false when DateTime.UtcNow >= entity.Start.Date.AddDays(-1).AddHours(16):
+			case false when ShiftRules.IsReleaseLocked(entity.Start, DateTime.UtcNow):
 				await Send.LockedAsync("You are not allowed to remove the shift anymore. Ask an admin.", ct);
 				return DeleteResponse.Other;
 		}
