@@ -39,13 +39,18 @@ Update `config/muddi/appsettings.json`:
 {
   "OAuth": {
     "Audience": "shift-planner",
-    "Authority": "https://your-keycloak-url.com/realms/muddi"
+    "Authority": "https://your-keycloak-url.com/realms/muddi",
+    "AllowRegistration": false
   },
   "ShiftApi": {
     "BaseUrl": "https://your-api-endpoint.com"
   }
 }
 ```
+
+`AllowRegistration` only controls whether "Registrieren" buttons are shown to visitors; set it to `true` when your
+realm allows self-registration. Anonymous browsing of free shifts itself is off by default and is enabled by a
+super-admin in the app under *Admin → Einstellungen → Öffentliche Schichtübersicht*.
 
 ---
 

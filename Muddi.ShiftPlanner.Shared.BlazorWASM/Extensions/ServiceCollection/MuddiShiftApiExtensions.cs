@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Components.WebAssembly.Authentication;
+using Microsoft.AspNetCore.Components.WebAssembly.Authentication;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -24,6 +24,10 @@ public static partial class ServiceCollectionExtensions
 			.AddHttpMessageHandler(sp => sp
 				.GetRequiredService<AuthorizationMessageHandler>()
 				.ConfigureHandler(authorizedUrls: new[] { baseUri }));
+		// Anonymous surface: deliberately WITHOUT the AuthorizationMessageHandler, which would throw
+		// AccessTokenNotAvailableException for every call when nobody is logged in.
+		services.AddRefitClient<IMuddiPublicShiftApi>(settings)
+			.ConfigureHttpClient(c => c.BaseAddress = new Uri(baseUri));
 #if !DEBUG
 		services.RemoveAll<IHttpMessageHandlerBuilderFilter>();
 #endif

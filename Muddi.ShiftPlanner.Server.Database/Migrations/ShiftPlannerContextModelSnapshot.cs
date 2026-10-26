@@ -17,7 +17,7 @@ namespace Muddi.ShiftPlanner.Server.Database.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "10.0.7")
+                .HasAnnotation("ProductVersion", "10.0.9")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -324,6 +324,8 @@ namespace Muddi.ShiftPlanner.Server.Database.Migrations
 
                             b1.Property<string>("MemberName")
                                 .IsRequired();
+
+                            b1.Property<bool>("PublicBrowsingEnabled");
 
                             b1.Property<TimeSpan>("StartTime");
 

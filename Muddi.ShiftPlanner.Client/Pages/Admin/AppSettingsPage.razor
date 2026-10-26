@@ -72,6 +72,20 @@
 </div>
 
 <div class="row mt-4">
+    <div class="col-md-4 align-items-center d-flex">
+        <RadzenLabel Text="Öffentliche Schichtübersicht"/>
+    </div>
+    <div class="col-md-8">
+        <RadzenSwitch @bind-Value="_settings.PublicBrowsingEnabled"/>
+        <RadzenText TextStyle="TextStyle.Caption" class="mt-1">
+            Wenn aktiv, können Besucher:innen ohne Login sehen, wo noch Schichten frei sind (Orte, Zeiten,
+            Schichtarten und freie Plätze). Wer eine Schicht übernommen hat, Sperrgründe sowie Admin-Orte und
+            Admin-Schichtarten bleiben weiterhin unsichtbar. Zum Eintragen ist nach wie vor ein Login nötig.
+        </RadzenText>
+    </div>
+</div>
+
+<div class="row mt-4">
     <div class="col-md-12 text-right">
         <RadzenButton Click="Save" ButtonStyle="ButtonStyle.Success" Text="Speichern"/>
         <RadzenButton Click="Cancel" ButtonStyle="ButtonStyle.Danger" Text="Abbrechen" Class="mr-1"/>
@@ -95,7 +109,8 @@
             StartTime = _settings.StartTime,
             EndTime = _settings.EndTime,
             Greeting = _settings.Greeting,
-            MemberName = _settings.MemberName
+            MemberName = _settings.MemberName,
+            PublicBrowsingEnabled = _settings.PublicBrowsingEnabled
         };
         AppSettingsService.SettingsChanged += (_, s) =>
         {
@@ -139,7 +154,8 @@
             StartTime = _original.StartTime,
             EndTime = _original.EndTime,
             Greeting = _original.Greeting,
-            MemberName = _original.MemberName
+            MemberName = _original.MemberName,
+            PublicBrowsingEnabled = _original.PublicBrowsingEnabled
         };
     }
 

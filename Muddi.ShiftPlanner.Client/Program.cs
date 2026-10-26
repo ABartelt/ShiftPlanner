@@ -14,6 +14,9 @@ builder.Services.AddOauthConnect(builder.Configuration.GetRequiredSection("OAuth
 builder.Services.AddShiftApiExtensions(builder.Configuration.GetRequiredSection("ShiftApi"));
 builder.Services.AddScoped<ShiftService>();
 builder.Services.AddSingleton<AppSettingsService>();
+builder.Services.AddScoped<PendingShiftClaimService>();
+builder.Services.AddSingleton(new PublicAccessOptions(
+	AllowRegistration: builder.Configuration.GetValue<bool>("OAuth:AllowRegistration")));
 builder.Services.AddBlazorDownloadFile();
 
 builder.Services.AddPWAUpdater();

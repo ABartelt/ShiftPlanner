@@ -1,17 +1,20 @@
 <div class="dashboard-container">
     <div class="dashboard-row">
-        <RadzenCard MouseEnter="@(args => ShowTooltip(args, $"{TotalUsers} {Settings.MemberName} haben sich registriert!"))">
-            <div class="metric-card">
-                <div class="metric-icon">
-                    <RadzenIcon Icon="group"/>
-                </div>
-                <div class="metric-content">
+        @if (CanSeeMembers)
+        {
+            <RadzenCard MouseEnter="@(args => ShowTooltip(args, $"{TotalUsers} {Settings.MemberName} haben sich registriert!"))">
+                <div class="metric-card">
+                    <div class="metric-icon">
+                        <RadzenIcon Icon="group"/>
+                    </div>
+                    <div class="metric-content">
 
-                    <div class="@MetricValueClass">@TotalUsers</div>
-                    <div class="metric-label">@Settings.MemberName</div>
+                        <div class="@MetricValueClass">@TotalUsers</div>
+                        <div class="metric-label">@Settings.MemberName</div>
+                    </div>
                 </div>
-            </div>
-        </RadzenCard>
+            </RadzenCard>
+        }
 
         <RadzenCard
             MouseEnter="@(args => ShowTooltip(args, $"{TotalShifts}/{TotalShiftsCount} Schichten sind schon belegt!"))">
