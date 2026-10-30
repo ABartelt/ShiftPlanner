@@ -2,16 +2,25 @@
 import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute } from 'vue-router'
-import { CircleHelp, LogOut, Menu, WifiOff } from '@lucide/vue'
+import { CircleHelp, LogOut, Menu, Monitor, Moon, Sun, WifiOff } from '@lucide/vue'
 import SideNav from './SideNav.vue'
 import BottomNav from './BottomNav.vue'
 import { Button } from '@/components/ui/button'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuLabel,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
 import { Sheet, SheetContent, SheetTitle } from '@/components/ui/sheet'
 import { useAuth } from '@/auth/useAuth'
 import { useSettingsStore } from '@/stores/settings'
 import { useAppStore } from '@/stores/app'
 import { useConfig } from '@/config'
 import { usePageTitle } from '@/composables/usePageTitle'
+import { useTheme, type ThemePreference } from '@/composables/useTheme'
 
 const { t } = useI18n()
 const route = useRoute()
@@ -20,9 +29,19 @@ const settings = useSettingsStore()
 const app = useAppStore()
 const config = useConfig()
 const { title: pageTitle } = usePageTitle()
+const { preference: themePreference, theme } = useTheme()
 const menuOpen = ref(false)
 
 const appTitle = computed(() => settings.settings.title || config.brand.name)
+const themeOptions = computed(() => [
+  { value: 'light', label: t('theme_light'), icon: Sun },
+  { value: 'dark', label: t('theme_dark'), icon: Moon },
+  { value: 'system', label: t('theme_system'), icon: Monitor },
+])
+
+function setTheme(value: unknown): void {
+  themePreference.value = value as ThemePreference
+}
 </script>
 
 <template>
@@ -72,6 +91,22 @@ const appTitle = computed(() => settings.settings.title || config.brand.name)
           >
             <WifiOff class="size-4" />
           </span>
+          <DropdownMenu>
+            <DropdownMenuTrigger as-child>
+              <Button variant="ghost" size="icon" :title="t('theme')" :aria-label="t('theme')">
+                <Moon v-if="theme === 'dark'" />
+                <Sun v-else />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuLabel>{{ t('theme') }}</DropdownMenuLabel>
+              <DropdownMenuRadioGroup :model-value="themePreference" @update:model-value="setTheme">
+                <DropdownMenuRadioItem v-for="o in themeOptions" :key="o.value" :value="o.value">
+                  <component :is="o.icon" /> {{ o.label }}
+                </DropdownMenuRadioItem>
+              </DropdownMenuRadioGroup>
+            </DropdownMenuContent>
+          </DropdownMenu>
           <Button variant="ghost" size="icon" as-child :title="t('nav_help')">
             <RouterLink to="/help"><CircleHelp /></RouterLink>
           </Button>

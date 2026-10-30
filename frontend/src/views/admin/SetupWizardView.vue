@@ -1008,7 +1008,7 @@ const chipClass = (on: boolean) =>
                       :aria-pressed="draft.color === c"
                       :class="
                         cn(
-                          'size-8 rounded-full border border-white/20 transition-shadow',
+                          'size-8 rounded-full border border-foreground/20 transition-shadow',
                           draft.color === c && 'ring-2 ring-primary ring-offset-2 ring-offset-card',
                         )
                       "
@@ -1024,7 +1024,7 @@ const chipClass = (on: boolean) =>
             <!-- timeline of one block -->
             <section class="space-y-2">
               <div
-                class="flex overflow-hidden rounded-lg border border-white/10 p-1"
+                class="flex overflow-hidden rounded-lg border border-foreground/10 p-1"
                 :style="{ background: draft.color }"
               >
                 <div

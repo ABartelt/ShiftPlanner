@@ -3,9 +3,51 @@
 
 @custom-variant dark (&:is(.dark *));
 
-/* Dark design tokens (shared with the tohoop crew app), mapped onto the shadcn-vue variable names.
+/* Design tokens (shared with the tohoop crew app), mapped onto the shadcn-vue variable names.
+   :root holds the light theme, .dark the dark one; the theme class is set on <html> by
+   index.html and src/composables/useTheme.ts.
    Deployments override --primary and friends in /customization/customization.css. */
 :root {
+  color-scheme: light;
+  --background: oklch(0.985 0.003 264);
+  --foreground: oklch(0.21 0.016 264);
+  --surface: oklch(1 0 0);
+  --surface-raised: oklch(0.965 0.006 264);
+  --card: var(--surface);
+  --card-foreground: var(--foreground);
+  --popover: var(--surface);
+  --popover-foreground: var(--foreground);
+  --primary: oklch(0.56 0.2 340);
+  --primary-foreground: oklch(0.99 0.004 264);
+  --secondary: var(--surface-raised);
+  --secondary-foreground: var(--foreground);
+  --muted: var(--surface-raised);
+  --muted-foreground: oklch(0.5 0.016 264);
+  --accent: oklch(0.94 0.01 264);
+  --accent-foreground: var(--foreground);
+  --amber: oklch(0.64 0.14 65);
+  --destructive: oklch(0.56 0.21 25);
+  --destructive-foreground: oklch(0.99 0.004 264);
+  --border: oklch(0.9 0.008 264);
+  --input: oklch(0.88 0.01 264);
+  --ring: var(--primary);
+  --status-green: oklch(0.55 0.15 150);
+  --status-yellow: oklch(0.62 0.14 80);
+  --status-red: oklch(0.56 0.21 25);
+  --sidebar: oklch(0.97 0.005 264);
+  --sidebar-foreground: var(--foreground);
+  --sidebar-border: var(--border);
+  --shift-blocked-foreground: oklch(0.5 0.01 264);
+  --shift-blocked-stripe-a: oklch(0.9 0.005 264);
+  --shift-blocked-stripe-b: oklch(0.95 0.004 264);
+  --shift-mine-border: var(--foreground);
+  --radius: 0.75rem;
+  --nav-height: 4.25rem;
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+.dark {
   color-scheme: dark;
   --background: oklch(0.145 0.012 264);
   --foreground: oklch(0.94 0.008 264);
@@ -35,10 +77,10 @@
   --sidebar: oklch(0.165 0.013 264);
   --sidebar-foreground: var(--foreground);
   --sidebar-border: var(--border);
-  --radius: 0.75rem;
-  --nav-height: 4.25rem;
-  --safe-top: env(safe-area-inset-top, 0px);
-  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --shift-blocked-foreground: #777;
+  --shift-blocked-stripe-a: #3a3a3a;
+  --shift-blocked-stripe-b: #2a2a2a;
+  --shift-mine-border: #fff;
 }
 
 @theme inline {

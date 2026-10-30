@@ -10,6 +10,7 @@ import { useSettingsStore } from '@/stores/settings'
 import { useSeasonStore } from '@/stores/season'
 import { useLocationsStore } from '@/stores/locations'
 import { useErrors } from '@/composables/useErrors'
+import { useTheme } from '@/composables/useTheme'
 
 const route = useRoute()
 const app = useAppStore()
@@ -18,6 +19,7 @@ const settings = useSettingsStore()
 const season = useSeasonStore()
 const locations = useLocationsStore()
 const { report } = useErrors()
+const { theme } = useTheme()
 
 onMounted(() => app.registerServiceWorker())
 
@@ -46,7 +48,7 @@ watch(
 </script>
 
 <template>
-  <Toaster position="top-center" rich-colors close-button />
+  <Toaster position="top-center" rich-colors close-button :theme="theme" />
   <UpdatePrompt />
   <RouterView v-if="route.meta.public" />
   <AppShell v-else>
