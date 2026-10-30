@@ -1,0 +1,14 @@
+{
+  "authority": "https://auth.tohoop-festival.de/realms/muddi",
+  "clientId": "shift-planner-frontend",
+  "apiBaseUrl": "/api",
+  "timeZone": "Europe/Berlin",
+  "scopes": "openid profile email",
+  "brand": {
+    "name": "Schichtplaner",
+    "primaryColor": "",
+    "logoUrl": "",
+    "footer": "MUDDI Markt Shift Planner · © 2022-2026 Max Reble, MUDDI Markt e.V.",
+    "footerUrl": "https://muddimarkt.org"
+  }
+}

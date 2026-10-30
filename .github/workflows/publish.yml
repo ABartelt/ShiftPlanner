@@ -20,6 +20,7 @@ jobs:
           { path: "Muddi.ShiftPlanner.Client", name: "client" },
           { path: "Muddi.ShiftPlanner.Server.Api", name: "api" },
           { path: "Muddi.ShiftPlanner.Services.Alerting", name: "alerting" },
+          { path: "frontend", name: "client-vue" },
         ]
     steps:
       - uses: actions/checkout@v4
@@ -74,7 +75,7 @@ jobs:
           sed -i "s/{{VERSION}}/${{ env.FULL_VERSION }}/g" Muddi.ShiftPlanner.Client/wwwroot/service-worker.published.js
 
       - name: Update assembly versions (tag push)
-        if: github.event_name == 'push'
+        if: github.event_name == 'push' && matrix.app.path != 'frontend'
         run: |
           VERSION=${{ env.FULL_VERSION }}
           CLEAN_VERSION=${VERSION#v}
@@ -89,7 +90,7 @@ jobs:
           sed -i "s/{{VERSION}}/${{ env.SHORT_SHA }}/g" Muddi.ShiftPlanner.Client/wwwroot/service-worker.published.js
 
       - name: Update assembly versions (manual dispatch)
-        if: github.event_name == 'workflow_dispatch'
+        if: github.event_name == 'workflow_dispatch' && matrix.app.path != 'frontend'
         run: |
           BASE_VERSION=${{ env.BASE_VERSION }}
           SHORT_SHA=${{ env.SHORT_SHA }}
@@ -130,4 +131,6 @@ jobs:
           platforms: linux/amd64,linux/arm64
           push: true
           tags: ${{ env.TAGS }}
+          build-args: |
+            APP_VERSION=${{ env.FULL_VERSION || env.SHORT_SHA }}
       

@@ -1,0 +1,25 @@
+"$schema" = "https://conductor.build/schemas/settings.repo.schema.json"
+
+[scripts]
+setup = "zsh .conductor/setup.sh"
+run_mode = "concurrent"
+
+[scripts.run.dev]
+available_in = [ "local" ]
+command = "zsh .conductor/run.sh dev"
+default = true
+icon = "play"
+
+[scripts.run.dev-blazor]
+available_in = [ "local" ]
+command = "zsh .conductor/run.sh dev-blazor"
+icon = "app-window"
+
+[scripts.run.alerting]
+available_in = [ "local" ]
+command = "zsh .conductor/run.sh alerting"
+icon = "bell"
+
+[scripts.run.test]
+command = "dotnet test Muddi.ShiftPlanner.sln && npm run --prefix frontend test:unit -- --run"
+icon = "test-tube"

@@ -29,7 +29,8 @@ const cacheName = `${cacheNamePrefix}${self.assetsManifest.version}`;
 const offlineAssetsInclude = [/\.dll$/, /\.pdb$/, /\.wasm/, /\.html/, /\.js$/, /\.json$/, /\.css$/, /\.woff$/, /\.png$/, /\.jpe?g$/, /\.gif$/, /\.ico$/, /\.blat$/, /\.dat$/];
 const offlineAssetsExclude = [
     /^service-worker\.js$/,
-    /^customization\//  // so customization will not be cached by service worker. TODO implement stale-while-revalidate for offline access in future
+    /^appsettings\.json$/, // <-- Exclude appsettings files from caching
+    /^customization\//  // so customization will not be cached by service worker
 ];
 const skipIntegrityCheck = [
     /appsettings\.json$/,

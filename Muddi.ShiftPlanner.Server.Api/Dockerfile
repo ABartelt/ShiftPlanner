@@ -19,4 +19,5 @@ RUN dotnet publish "Muddi.ShiftPlanner.Server.Api.csproj" -c Release -o /app/pub
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
+RUN rm -f /app/appsettings.Development.json
 ENTRYPOINT ["dotnet", "Muddi.ShiftPlanner.Server.Api.dll"]

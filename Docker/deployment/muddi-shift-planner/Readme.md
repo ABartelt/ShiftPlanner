@@ -2,8 +2,14 @@
 
 ## Docker Images
 
-- API: `ghcr.io/muddi-markt/shiftplanner/api:vXX` (e.g., v1.3)
-- Client: `ghcr.io/muddi-markt/shiftplanner/client:vXX` (e.g., v1.3)
+- API: `ghcr.io/muddi-markt/shiftplanner/api:vXX` (e.g., v1.8)
+- Client: `ghcr.io/muddi-markt/shiftplanner/client:vXX` (e.g., v1.8)
+
+---
+
+## Migrating from v1.7.x
+
+If you are upgrading an existing v1.7.x deployment, see [Migration-v1.8.md](./Migration-v1.8.md).
 
 ---
 
@@ -11,7 +17,14 @@
 
 In `docker-compose.yml`, update the image tags to the desired release version.
 
-Replace `Cors__Origins__0: https://your-client-url.com` with your client url, so where the frontend will be reached 
+> **Token issuer (production):** The API validates user tokens against the issuer set in
+> `MuddiConnect__Authority` in `docker-compose.yml`. The default is the compose-internal URL
+> `http://keycloak:8080/realms/<realm>` (works for local testing). In production, the browser
+> fetches its tokens from your public Keycloak URL, and Keycloak stamps that URL as the token's
+> issuer (`iss`) — so set `MuddiConnect__Authority` to your public Keycloak URL instead
+> (e.g. `${SHIFT_PLANNER_KEYCLOAK_URL}/realms/${SHIFT_PLANNER_KEYCLOAK_REALM}`), otherwise the API
+> rejects user tokens. Note that the API also fetches its own service account token and the OIDC
+> metadata from that URL, so the server must be able to reach its own public Keycloak URL.
 
 ---
 
@@ -20,84 +33,87 @@ Replace `Cors__Origins__0: https://your-client-url.com` with your client url, so
 Copy and modify the `.env` file with secure passwords:
 
 ```
-MUDDI_POSTGRES_USER=muddi
-MUDDI_POSTGRES_PASSWORD=<secure-password>
-MUDDI_POSTGRES_DB=shift_planner
+SHIFT_PLANNER_POSTGRES_USER=shift_planner
+SHIFT_PLANNER_POSTGRES_PASSWORD=<secure-password>
+SHIFT_PLANNER_POSTGRES_DB=shift_planner
+SHIFT_PLANNER_KEYCLOAK_URL=https://your-keycloak-url.com
+SHIFT_PLANNER_KEYCLOAK_REALM=muddi
+SHIFT_PLANNER_API_URL=https://your-api-endpoint.org
+SHIFT_PLANNER_CLIENT_URL=https://your-client-url.com
+SHIFT_PLANNER_ALLOW_REGISTRATION=false
+SHIFT_PLANNER_CLIENT_ID=shift-planner-server-api
+SHIFT_PLANNER_CLIENT_SECRET=<from-keycloak-step-4>
 KEYCLOAK_POSTGRES_PASSWORD=<secure-password>
 KEYCLOAK_ADMIN_PASSWORD=<secure-password>
-MUDDI_CLIENT_ID=shift-planner-server-api
-MUDDI_CLIENT_SECRET=<from-keycloak-step-5>
 ```
+
+- `SHIFT_PLANNER_KEYCLOAK_URL` - your public Keycloak URL (used by the browser/client app)
+- `SHIFT_PLANNER_KEYCLOAK_REALM` - the realm name (default `muddi`). You can rename it (e.g. `my-cool-party`) — the API and client pick it up from `.env` automatically
+- `SHIFT_PLANNER_API_URL` - your public API URL (used by the client app)
+- `SHIFT_PLANNER_CLIENT_URL` - your public client URL (used as the API's CORS origin)
+- `SHIFT_PLANNER_ALLOW_REGISTRATION` - `true` or `false` (default). Only controls whether "Registrieren" buttons are
+  shown to visitors; set it to `true` when your realm allows self-registration (see 4.5). Anonymous browsing of free
+  shifts itself is off by default and is enabled by a super-admin in the app under
+  *Admin → Einstellungen → Öffentliche Schichtübersicht*.
+
+> **Existing deployments (breaking):** The `MUDDI_*` env vars have been renamed to `SHIFT_PLANNER_*`,
+> and the new URL/realm vars have been added — update your `.env` accordingly.
 
 ---
 
-## Step 3: Configure Client
+## Step 3: Deploy
 
-Update `config/muddi/appsettings.json`:
-
-```json
-{
-  "OAuth": {
-    "Audience": "shift-planner",
-    "Authority": "https://your-keycloak-url.com/realms/muddi",
-    "AllowRegistration": false
-  },
-  "ShiftApi": {
-    "BaseUrl": "https://your-api-endpoint.com"
-  }
-}
-```
-
-`AllowRegistration` only controls whether "Registrieren" buttons are shown to visitors; set it to `true` when your
-realm allows self-registration. Anonymous browsing of free shifts itself is off by default and is enabled by a
-super-admin in the app under *Admin → Einstellungen → Öffentliche Schichtübersicht*.
-
----
-
-## Step 4: Deploy
+> **Production:** Before deploying to production, set `MuddiConnect__Authority` in `docker-compose.yml`
+> to your public Keycloak URL (e.g. `${SHIFT_PLANNER_KEYCLOAK_URL}/realms/${SHIFT_PLANNER_KEYCLOAK_REALM}`)
+> — see the token issuer note in Step 1. The shipped value points at the container-internal Keycloak
+> and only works for local testing.
 
 ```bash
 docker-compose up -d
 ```
 
+After changing any value in `.env`, `docker compose up -d` recreates the containers with the new values.
+
 ---
 
-## Step 5: Setup Keycloak Realm
+## Step 4: Setup Keycloak Realm
 
 After first deployment, configure Keycloak at `http://localhost:28080`
 
-### 5.1 Create muddi Realm
+### 4.1 Create the Realm
 
 1. Login to Keycloak Admin Console
 2. Click dropdown (top left) -> Create Realm
-3. Name: `muddi`
+3. Name: the value of `SHIFT_PLANNER_KEYCLOAK_REALM` from `.env` (default: `muddi`)
+   - You can use any name (e.g. `my-cool-party`) — the API and client read the realm name from `.env`
 
-### 5.2 Create shift-planner Client
+### 4.2 Create shift-planner Client
 
 1. Clients -> Create Client
 2. Client ID: `shift-planner`
 3. Client authentication: OFF (public client)
-4. Standard Flow ON & Direct access grants: OFF 
-5. After creation, go to Client Scopes **tab**
-6. Add Mappers:
-   - Click `shift-planner-dedicated` -> Add mapper -> By configuration
-   - Select `User Client Role`
-     - Name: `role-mapper`
-     - Client ID: `shift-planner`
-     - Token Claim Name: `roles`
-     - Add to access token: ON
-     - Add to userinfo: ON
+4. Standard Flow ON & Direct access grants: OFF
+5. Add valid redirection URI and web origins
+6. Create the dedicated client scope (Keycloak 26 does **not** create it automatically):
+   - Client scopes -> Create
+   - Name: `shift-planner-dedicated`
+   - Protocol: OpenID Connect
+   - Clients -> `shift-planner` -> Client scopes -> Default client scopes -> Add -> `shift-planner-dedicated`
+7. Add Mappers (Client scopes -> `shift-planner-dedicated` -> Mappers):
+   - Add mapper -> By configuration
+     - Select `User Client Role`
+       - Name: `role-mapper`
+       - Client ID: `shift-planner` (the client ID string, not the UUID)
+       - Token Claim Name: `roles`
+       - Add to access token: ON
+       - Add to userinfo: ON
    - Add another mapper -> Select `Audience`
      - Name: `audience`
      - Included Custom Audience: `shift-planner`
-7. Add valid redirection URI and web origins
+8. Client scopes -> `roles` -> Mappers -> `client roles`
+   - Set "Add to userinfo": ON
 
-### 5.3 Add Roles Mapper to userinfo
-
-1. Client Scopes -> `roles` -> Mappers -> `client roles`
-2. Set "Add to userinfo": ON
-
-### 5.4 Create Client Roles
+### 4.3 Create Client Roles
 
 1. Go to Clients -> `shift-planner` -> Roles
 2. Create roles:
@@ -105,12 +121,12 @@ After first deployment, configure Keycloak at `http://localhost:28080`
    - `editor` (allowed to create/edit own shifts)
    - `admin` (allowed to create/update, delete shifts only)
    - `super-admin` (allowed to delete everything)
-     - You may add `admin` in "Associated roles" tab via `Assign role -> Clent roles`, so super-admins are also automatically admins
-3. Go to Realm roles -> `default-roles-muddi`
+     - You may add `admin` in "Associated roles" tab via `Assign role -> Client roles`, so super-admins are also automatically admins
+3. Go to Realm roles -> `default-roles-<realm-name>` (e.g. `default-roles-muddi`)
 4. Assign default roles -> Filter by `shift-planner`
 5. Add `editor` and `viewer` as defaults
 
-### 5.5 Create Service Account Client
+### 4.4 Create Service Account Client
 
 1. Clients -> Create Client
 2. Client ID: `shift-planner-server-api`
@@ -119,21 +135,24 @@ After first deployment, configure Keycloak at `http://localhost:28080`
 5. Service accounts roles: ON
 6. Standard Flow: OFF
 7. After creation, go to Credentials tab
-8. Copy the Client Secret -> update `MUDDI_CLIENT_SECRET` in `.env`
+8. Copy the Client Secret -> update `SHIFT_PLANNER_CLIENT_SECRET` in `.env`
 9. Go to Service Account Roles tab
 10. Assign role -> Filter by `realm-management` -> Add `view-users`
 
-### 5.6 Configure User Registration (optional)
+### 4.5 Configure User Registration (optional)
 
 1. Realm Settings -> Login
    - Enable user registration, forgot password, etc.
 2. Realm Settings -> Email
    - Configure SMTP for email verification
-
+3. Note: users created via the admin console (instead of self-registration) cannot log in with their
+   password until their email is verified — password login fails with
+   `invalid_grant: Account is not fully set up`. Set "Email verified" ON for the user in the admin
+   console (or have them confirm via the verification email, which requires SMTP).
 
 ---
 
-## Step 6: Restart API
+## Step 5: Restart API
 
 After updating the client secret in `.env`:
 

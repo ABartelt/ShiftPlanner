@@ -1,29 +1,36 @@
 services:
   shift-planner-api:
     restart: unless-stopped
-    image: ghcr.io/muddi-markt/shiftplanner/api:v1.4
+    image: ghcr.io/muddi-markt/shiftplanner/api:v1.8
     depends_on:
-      - keycloak
-      - postgres
+      keycloak:
+        condition: service_started
+      postgres:
+        condition: service_healthy
     networks:
       - shiftplanner
     ports:
       - "5280:8080"
     environment:
-      Database__USER: ${MUDDI_POSTGRES_USER}
-      Database__PASSWORD: ${MUDDI_POSTGRES_PASSWORD}
-      Database__Name: ${MUDDI_POSTGRES_DB}
+      Database__USER: ${SHIFT_PLANNER_POSTGRES_USER}
+      Database__PASSWORD: ${SHIFT_PLANNER_POSTGRES_PASSWORD}
+      Database__Name: ${SHIFT_PLANNER_POSTGRES_DB}
       Database__HOST: postgres
       Database__PORT: 5432
-      MuddiConnect__ClientId: ${MUDDI_CLIENT_ID}
-      MuddiConnect__ClientSecret: ${MUDDI_CLIENT_SECRET}
-      Cors__Origins__0: https://your-client-url.com
+      MuddiConnect__Authority: http://keycloak:8080/realms/${SHIFT_PLANNER_KEYCLOAK_REALM}
+      MuddiConnect__ClientId: ${SHIFT_PLANNER_CLIENT_ID}
+      MuddiConnect__ClientSecret: ${SHIFT_PLANNER_CLIENT_SECRET}
+      Cors__Origins__0: ${SHIFT_PLANNER_CLIENT_URL}
   shift-planner-client:
     restart: unless-stopped
-    image: ghcr.io/muddi-markt/shiftplanner/client:v1.4
+    image: ghcr.io/muddi-markt/shiftplanner/client:v1.8
+    environment:
+      SHIFT_PLANNER_KEYCLOAK_URL: ${SHIFT_PLANNER_KEYCLOAK_URL}
+      SHIFT_PLANNER_KEYCLOAK_REALM: ${SHIFT_PLANNER_KEYCLOAK_REALM}
+      SHIFT_PLANNER_API_URL: ${SHIFT_PLANNER_API_URL}
+      SHIFT_PLANNER_ALLOW_REGISTRATION: ${SHIFT_PLANNER_ALLOW_REGISTRATION:-false}
     volumes:
       - ./config/muddi/customization:/usr/share/nginx/html/customization
-      - ./config/muddi/appsettings.json:/usr/share/nginx/html/appsettings.json
       - ./config/muddi/manifest.json:/usr/share/nginx/html/manifest.json
     networks:
       - shiftplanner
@@ -33,11 +40,13 @@ services:
   keycloak:
     restart: unless-stopped
     image: quay.io/keycloak/keycloak:26.4
-    command: start --optimized
+    # "start" (not "start --optimized"): a fresh container must do its first-ever
+    # optimized build itself, which "--optimized" skips and fails on.
+    command: start
     environment:
       # Database
       KC_DB: postgres
-      KC_DB_URL_HOST: postgresql
+      KC_DB_URL_HOST: postgres
       KC_DB_URL_DATABASE: keycloak
       KC_DB_USERNAME: keycloak
       KC_DB_PASSWORD: ${KEYCLOAK_POSTGRES_PASSWORD}
@@ -48,8 +57,13 @@ services:
       
       KC_BOOTSTRAP_ADMIN_USERNAME: admin
       KC_BOOTSTRAP_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
+    volumes:
+      # Persistent data dir: keeps the optimized build (and keycloak state) across
+      # container recreation, so boots are not "first ever start" anymore.
+      - keycloak_data:/opt/keycloak/data
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
     ports:
       - "28080:8080" # only for local testing
     networks:
@@ -58,12 +72,17 @@ services:
   postgres:
     image: postgres:14
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: ChangeMeBetterNow
-      MUDDI_POSTGRES_USER: ${MUDDI_POSTGRES_USER}
-      MUDDI_POSTGRES_PASSWORD: ${MUDDI_POSTGRES_PASSWORD}
-      MUDDI_POSTGRES_DB: shift_planner
+      SHIFT_PLANNER_POSTGRES_USER: ${SHIFT_PLANNER_POSTGRES_USER}
+      SHIFT_PLANNER_POSTGRES_PASSWORD: ${SHIFT_PLANNER_POSTGRES_PASSWORD}
+      SHIFT_PLANNER_POSTGRES_DB: ${SHIFT_PLANNER_POSTGRES_DB}
       KEYCLOAK_POSTGRES_PASSWORD: ${KEYCLOAK_POSTGRES_PASSWORD}
     volumes:
       - postgres_data:/var/lib/postgres/data
@@ -89,6 +108,7 @@ services:
 
 volumes:
   postgres_data:
+  keycloak_data:
 
 networks:
   shiftplanner:

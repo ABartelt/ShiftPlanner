@@ -1,4 +1,4 @@
-﻿using System.Reflection;
+using System.Reflection;
 using System.Reflection.Metadata;
 using Muddi.ShiftPlanner.Server.Api.Endpoints.Seasons;
 using Muddi.ShiftPlanner.Shared.Contracts.v1.Requests;
@@ -88,6 +88,9 @@ public interface IMuddiShiftApi
 	[Post("/containers")]
 	[Headers("Authorization: Bearer")]
 	Task CreateContainer(CreateContainerRequest createContainerRequest);
+
+	[Put("/containers/{id}")]
+	Task UpdateContainer(Guid id, [Body] UpdateContainerRequest request);
 
 	[Delete("/containers/{id}")]
 	[Headers("Authorization: Bearer")]
