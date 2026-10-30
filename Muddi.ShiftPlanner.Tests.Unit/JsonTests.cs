@@ -18,7 +18,7 @@ public class JsonTests
 		              "Greeting": "Buongiorno",
 		              "MemberName": "MUDDIs",
 		              "StartTime": "08:00:00",
-		              "EndTime": "26:00:00"
+		              "EndTime": "1.02:00:00"
 		              }
 		              """;
 
@@ -59,5 +59,15 @@ public class JsonTests
 		settings.MemberName.Should().Be("TestGroup");
 		settings.StartTime.TotalHours.Should().Be(0);
 		settings.EndTime.TotalHours.Should().Be(0);
+	}
+
+	[Fact]
+	public void ShouldSerializeEndTimePastMidnight_AsDotNetTimeSpan()
+	{
+		// The Vue client parses and writes "d.hh:mm:ss" (frontend/src/domain/time.ts), so 26:00 must round-trip as 1.02:00:00
+		var json = JsonSerializer.Serialize(new ApplicationSettings());
+
+		json.Should().Contain("\"EndTime\":\"1.02:00:00\"");
+		JsonSerializer.Deserialize<ApplicationSettings>(json)!.EndTime.TotalHours.Should().Be(26);
 	}
 }
