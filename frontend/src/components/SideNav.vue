@@ -3,6 +3,7 @@ import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import {
   BarChart3,
+  Bell,
   CalendarRange,
   Download,
   Home,
@@ -49,6 +50,14 @@ const linkClass =
       @click="emit('navigate')"
     >
       <Home class="size-4" /> {{ t('nav_start') }}
+    </RouterLink>
+    <RouterLink
+      to="/notifications"
+      :class="linkClass"
+      active-class="bg-accent text-foreground"
+      @click="emit('navigate')"
+    >
+      <Bell class="size-4" /> {{ t('nav_notifications') }}
     </RouterLink>
     <p class="eyebrow mt-4 px-3 pb-1">{{ t('nav_locations') }}</p>
     <RouterLink

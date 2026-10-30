@@ -44,6 +44,7 @@ builder.Services.AddDatabaseMigrations();
 builder.Services.AddMemoryCache();
 
 builder.Services.AddTransient<ExcelService>();
+builder.Services.AddSingleton<NotificationChannelSettings>();
 
 var app = builder.Build();
 

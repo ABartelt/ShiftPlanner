@@ -21,6 +21,11 @@ services:
       MuddiConnect__ClientId: ${SHIFT_PLANNER_CLIENT_ID}
       MuddiConnect__ClientSecret: ${SHIFT_PLANNER_CLIENT_SECRET}
       Cors__Origins__0: ${SHIFT_PLANNER_CLIENT_URL}
+      # Shift reminders: a channel is offered to users only when its handle is set (see shift-planner-alerting)
+      Notifications__Telegram__BotUsername: ${SHIFT_PLANNER_TELEGRAM_BOT_USERNAME:-}
+      Notifications__WhatsApp__Number: ${SHIFT_PLANNER_WHATSAPP_NUMBER:-}
+      Notifications__Signal__Number: ${SHIFT_PLANNER_SIGNAL_NUMBER:-}
+      Notifications__Email__Enabled: ${SHIFT_PLANNER_EMAIL_ENABLED:-false}
   shift-planner-client:
     restart: unless-stopped
     image: ghcr.io/muddi-markt/shiftplanner/client:v1.8
@@ -91,19 +96,42 @@ services:
     ports:
       - "25432:5432"
 
-  #shift-planner-alerting:
-  #  restart: unless-stopped
-  #  image: ghcr.io/muddi-markt/shiftplanner/alerting:v1.4
-  #  build:
-  #    context: ../Muddi.ShiftPlanner.Services.Alerting
-  #    dockerfile: Dockerfile
-  #    target: final
-  #    args:
-  #      - TARGETARCH=arm64
-  #  depends_on:
-  #    - postgres
-  #  networks:
-  #    - shiftplanner
+  # Sends shift reminders via Telegram / WhatsApp / Signal / e-mail. Opt-in:
+  #   docker compose --profile notifications up -d
+  # Fill in the channels you want in .env; channels without credentials stay off.
+  shift-planner-alerting:
+    restart: unless-stopped
+    image: ghcr.io/muddi-markt/shiftplanner/alerting:v1.8
+    profiles:
+      - notifications
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - shiftplanner
+    ports:
+      # Twilio webhook and the e-mail release/unsubscribe pages; expose via your reverse proxy as SHIFT_PLANNER_ALERTING_URL
+      - "5282:8080"
+    environment:
+      Database__USER: ${SHIFT_PLANNER_POSTGRES_USER}
+      Database__PASSWORD: ${SHIFT_PLANNER_POSTGRES_PASSWORD}
+      Database__Name: ${SHIFT_PLANNER_POSTGRES_DB}
+      Database__HOST: postgres
+      Database__PORT: 5432
+      MuddiShiftClient__BaseUrl: ${SHIFT_PLANNER_CLIENT_URL}
+      Notifications__PublicBaseUrl: ${SHIFT_PLANNER_ALERTING_URL:-}
+      Telegram__ApiToken: ${SHIFT_PLANNER_TELEGRAM_BOT_TOKEN:-}
+      Telegram__BotUsername: ${SHIFT_PLANNER_TELEGRAM_BOT_USERNAME:-}
+      Twilio__AccountSid: ${SHIFT_PLANNER_TWILIO_ACCOUNT_SID:-}
+      Twilio__AuthToken: ${SHIFT_PLANNER_TWILIO_AUTH_TOKEN:-}
+      Twilio__WhatsAppFrom: ${SHIFT_PLANNER_WHATSAPP_NUMBER:-}
+      Signal__BaseUrl: ${SHIFT_PLANNER_SIGNAL_API_URL:-}
+      Signal__Number: ${SHIFT_PLANNER_SIGNAL_NUMBER:-}
+      Smtp__Host: ${SHIFT_PLANNER_SMTP_HOST:-}
+      Smtp__Port: ${SHIFT_PLANNER_SMTP_PORT:-587}
+      Smtp__User: ${SHIFT_PLANNER_SMTP_USER:-}
+      Smtp__Password: ${SHIFT_PLANNER_SMTP_PASSWORD:-}
+      Smtp__FromAddress: ${SHIFT_PLANNER_SMTP_FROM:-}
 
 volumes:
   postgres_data:
