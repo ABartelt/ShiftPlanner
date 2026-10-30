@@ -20,7 +20,7 @@ const locations = useLocationsStore()
           :to="`/locations/${l.id}`"
           class="flex items-center gap-3 px-4 py-3 hover:bg-accent"
         >
-          <MapPin class="size-5 text-primary" />
+          <MapPin class="size-5 text-primary-ink" />
           <div class="min-w-0 flex-1">
             <p class="truncate font-medium">{{ l.name }}</p>
             <p class="text-xs text-muted-foreground">

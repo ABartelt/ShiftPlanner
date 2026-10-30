@@ -7,7 +7,7 @@ const { t } = useI18n()
   <div class="grid min-h-dvh place-items-center p-6 text-center">
     <div>
       <p>{{ t('logged_out') }}</p>
-      <RouterLink to="/" class="mt-4 inline-block text-primary underline">{{
+      <RouterLink to="/" class="mt-4 inline-block text-primary-ink underline">{{
         t('login')
       }}</RouterLink>
     </div>

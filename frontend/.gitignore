@@ -4,3 +4,6 @@ dist-ssr
 coverage
 *.local
 .eslintcache
+
+# Brand assets (fonts, logos) are provided by each deployment, see src/styles/main.css
+public/customization/brand/
