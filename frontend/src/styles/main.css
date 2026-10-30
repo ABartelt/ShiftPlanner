@@ -3,43 +3,56 @@
 
 @custom-variant dark (&:is(.dark *));
 
-/* Design tokens (shared with the tohoop crew app), mapped onto the shadcn-vue variable names.
-   :root holds the light theme, .dark the dark one; the theme class is set on <html> by
-   index.html and src/composables/useTheme.ts.
+/* Design tokens after the tohoop corporate design manual (v1.0, Oct 2026), mapped onto the
+   shadcn-vue variable names. Brand colours: black, white, rosa #ff96e0 (primary), orange #ff821c,
+   cyan #00cfff. :root holds the light theme, .dark the dark one; the theme class is set on <html>
+   by index.html and src/composables/useTheme.ts.
    Deployments override --primary and friends in /customization/customization.css. */
 :root {
   color-scheme: light;
-  --background: oklch(0.985 0.003 264);
-  --foreground: oklch(0.21 0.016 264);
-  --surface: oklch(1 0 0);
-  --surface-raised: oklch(0.965 0.006 264);
+  --brand-rosa: #ff96e0;
+  --brand-orange: #ff821c;
+  --brand-cyan: #00cfff;
+  --brand-gradient: linear-gradient(
+    120deg,
+    var(--brand-rosa),
+    var(--brand-orange) 55%,
+    var(--brand-cyan)
+  );
+  --background: #ffffff;
+  --foreground: #000000;
+  --surface: #ffffff;
+  --surface-raised: oklch(0.965 0 0);
   --card: var(--surface);
   --card-foreground: var(--foreground);
   --popover: var(--surface);
   --popover-foreground: var(--foreground);
-  --primary: oklch(0.56 0.2 340);
-  --primary-foreground: oklch(0.99 0.004 264);
+  --primary: var(--brand-rosa);
+  --primary-foreground: #000000;
+  /* rosa is too light for text on white, so text accents use a deeper shade of it */
+  --primary-ink: oklch(0.52 0.19 340);
   --secondary: var(--surface-raised);
   --secondary-foreground: var(--foreground);
   --muted: var(--surface-raised);
-  --muted-foreground: oklch(0.5 0.016 264);
-  --accent: oklch(0.94 0.01 264);
+  --muted-foreground: oklch(0.45 0 0);
+  --accent: oklch(0.95 0 0);
   --accent-foreground: var(--foreground);
-  --amber: oklch(0.64 0.14 65);
+  --orange: oklch(0.6 0.17 50);
+  --cyan: oklch(0.58 0.12 230);
   --destructive: oklch(0.56 0.21 25);
-  --destructive-foreground: oklch(0.99 0.004 264);
-  --border: oklch(0.9 0.008 264);
-  --input: oklch(0.88 0.01 264);
+  --destructive-foreground: #ffffff;
+  --border: oklch(0.9 0 0);
+  --input: oklch(0.86 0 0);
   --ring: var(--primary);
   --status-green: oklch(0.55 0.15 150);
   --status-yellow: oklch(0.62 0.14 80);
   --status-red: oklch(0.56 0.21 25);
-  --sidebar: oklch(0.97 0.005 264);
+  --sidebar: oklch(0.975 0 0);
   --sidebar-foreground: var(--foreground);
   --sidebar-border: var(--border);
-  --shift-blocked-foreground: oklch(0.5 0.01 264);
-  --shift-blocked-stripe-a: oklch(0.9 0.005 264);
-  --shift-blocked-stripe-b: oklch(0.95 0.004 264);
+  --shift-blocked-foreground: oklch(0.5 0 0);
+  --shift-blocked-stripe-a: oklch(0.9 0 0);
+  --shift-blocked-stripe-b: oklch(0.95 0 0);
   --shift-mine-border: var(--foreground);
   --radius: 0.75rem;
   --nav-height: 4.25rem;
@@ -49,32 +62,34 @@
 
 .dark {
   color-scheme: dark;
-  --background: oklch(0.145 0.012 264);
-  --foreground: oklch(0.94 0.008 264);
-  --surface: oklch(0.185 0.014 264);
-  --surface-raised: oklch(0.225 0.016 264);
+  --background: #000000;
+  --foreground: #ffffff;
+  --surface: oklch(0.17 0 0);
+  --surface-raised: oklch(0.21 0 0);
   --card: var(--surface);
   --card-foreground: var(--foreground);
   --popover: var(--surface-raised);
   --popover-foreground: var(--foreground);
-  --primary: oklch(0.805 0.154 338.521);
-  --primary-foreground: oklch(0.16 0.018 264);
+  --primary: var(--brand-rosa);
+  --primary-foreground: #000000;
+  --primary-ink: var(--brand-rosa);
   --secondary: var(--surface-raised);
   --secondary-foreground: var(--foreground);
   --muted: var(--surface-raised);
-  --muted-foreground: oklch(0.72 0.012 264);
-  --accent: oklch(0.26 0.018 264);
+  --muted-foreground: oklch(0.72 0 0);
+  --accent: oklch(0.25 0 0);
   --accent-foreground: var(--foreground);
-  --amber: oklch(0.78 0.13 70);
+  --orange: var(--brand-orange);
+  --cyan: var(--brand-cyan);
   --destructive: oklch(0.7 0.19 25);
-  --destructive-foreground: oklch(0.16 0.018 264);
-  --border: oklch(0.28 0.014 264);
-  --input: oklch(0.2 0.014 264);
+  --destructive-foreground: #000000;
+  --border: oklch(0.28 0 0);
+  --input: oklch(0.19 0 0);
   --ring: var(--primary);
   --status-green: oklch(0.78 0.16 150);
   --status-yellow: oklch(0.84 0.16 90);
   --status-red: oklch(0.7 0.19 25);
-  --sidebar: oklch(0.165 0.013 264);
+  --sidebar: oklch(0.11 0 0);
   --sidebar-foreground: var(--foreground);
   --sidebar-border: var(--border);
   --shift-blocked-foreground: #777;
@@ -83,11 +98,27 @@
   --shift-mine-border: #fff;
 }
 
+/* LIQUIDASI is the tohoop logo typeface. It is not part of this repository: deployments provide it
+   at /customization/brand/liquidasi.woff2; without it headlines fall back to Roboto Black. */
+@font-face {
+  font-family: 'LIQUIDASI';
+  src: url('/customization/brand/liquidasi.woff2') format('woff2');
+  font-display: swap;
+}
+
+/* Typography after the manual: Roboto light for text, Roboto Black for headings and emphasis
+   (font-semibold/font-bold map to it), LIQUIDASI in lower case for page titles. */
+@theme {
+  --font-weight-semibold: 900;
+  --font-weight-bold: 900;
+}
+
 @theme inline {
   --font-sans:
-    'Montserrat Variable', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI',
-    sans-serif;
-  --font-display: 'Bricolage Grotesque Variable', ui-sans-serif, sans-serif;
+    'Roboto Variable', Roboto, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+    'Segoe UI', sans-serif;
+  --font-display: var(--font-sans);
+  --font-brand: 'LIQUIDASI', var(--font-sans);
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-surface: var(--surface);
@@ -98,13 +129,15 @@
   --color-popover-foreground: var(--popover-foreground);
   --color-primary: var(--primary);
   --color-primary-foreground: var(--primary-foreground);
+  --color-primary-ink: var(--primary-ink);
   --color-secondary: var(--secondary);
   --color-secondary-foreground: var(--secondary-foreground);
   --color-muted: var(--muted);
   --color-muted-foreground: var(--muted-foreground);
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
-  --color-amber: var(--amber);
+  --color-orange: var(--orange);
+  --color-cyan: var(--cyan);
   --color-destructive: var(--destructive);
   --color-destructive-foreground: var(--destructive-foreground);
   --color-border: var(--border);
@@ -132,6 +165,8 @@
   body {
     @apply bg-background text-foreground font-sans antialiased;
     min-height: 100%;
+    font-weight: 300;
+    letter-spacing: 0.02em;
   }
   h1,
   h2,
@@ -146,7 +181,17 @@
 }
 
 @utility eyebrow {
-  @apply text-primary font-display text-xs font-semibold tracking-[0.22em] uppercase;
+  @apply text-primary-ink font-display text-xs font-black tracking-[0.18em] uppercase;
+}
+/* Page titles: LIQUIDASI in lower case with +50 tracking. LIQUIDASI has a single weight, so
+   synthesis is off and the weight only applies to the Roboto fallback. Umlauts are missing from
+   the font; render titles through BrandText, which draws the dots itself. */
+@utility headline {
+  font-family: var(--font-brand);
+  font-weight: 900;
+  font-synthesis: none;
+  text-transform: lowercase;
+  letter-spacing: 0.05em;
 }
 @utility safe-top {
   padding-top: var(--safe-top);

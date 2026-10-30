@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import BrandText from '@/components/BrandText.vue'
 import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute } from 'vue-router'
@@ -95,13 +96,15 @@ const locationName = (id: string) => locations.byId.get(id)?.name ?? ''
 
 <template>
   <div class="mx-auto max-w-5xl">
-    <h1 class="text-2xl font-semibold">
-      {{
-        t('start_greeting', {
-          greeting: settings.settings.greeting,
-          name: auth.profile.value?.firstName ?? '',
-        })
-      }}
+    <h1 class="headline text-3xl">
+      <BrandText
+        :text="
+          t('start_greeting', {
+            greeting: settings.settings.greeting,
+            name: auth.profile.value?.firstName ?? '',
+          })
+        "
+      />
     </h1>
 
     <TooltipProvider>
@@ -109,7 +112,7 @@ const locationName = (id: string) => locations.byId.get(id)?.name ?? ''
         <Tooltip v-if="memberCount !== null">
           <TooltipTrigger as-child>
             <div class="rounded-xl border border-border bg-card p-4">
-              <Users class="size-5 text-primary" />
+              <Users class="size-5 text-primary-ink" />
               <Skeleton v-if="loading" class="mt-2 h-8 w-16" />
               <p v-else class="mt-2 font-display text-3xl font-semibold">{{ memberCount }}</p>
               <p class="text-xs text-muted-foreground">{{ settings.settings.memberName }}</p>
@@ -122,7 +125,7 @@ const locationName = (id: string) => locations.byId.get(id)?.name ?? ''
         <Tooltip>
           <TooltipTrigger as-child>
             <div class="rounded-xl border border-border bg-card p-4">
-              <Group class="size-5 text-primary" />
+              <Group class="size-5 text-primary-ink" />
               <Skeleton v-if="loading" class="mt-2 h-8 w-16" />
               <p v-else class="mt-2 font-display text-3xl font-semibold">{{ stats.assigned }}</p>
               <p class="text-xs text-muted-foreground">{{ t('stat_shifts') }}</p>
@@ -135,7 +138,7 @@ const locationName = (id: string) => locations.byId.get(id)?.name ?? ''
         <Tooltip>
           <TooltipTrigger as-child>
             <div class="rounded-xl border border-border bg-card p-4">
-              <Clock class="size-5 text-primary" />
+              <Clock class="size-5 text-primary-ink" />
               <Skeleton v-if="loading" class="mt-2 h-8 w-16" />
               <p v-else class="mt-2 font-display text-3xl font-semibold">{{ stats.days }}</p>
               <p class="text-xs text-muted-foreground">{{ t('stat_days') }}</p>
@@ -148,7 +151,7 @@ const locationName = (id: string) => locations.byId.get(id)?.name ?? ''
         <Tooltip>
           <TooltipTrigger as-child>
             <div class="rounded-xl border border-border bg-card p-4">
-              <PieChart class="size-5 text-primary" />
+              <PieChart class="size-5 text-primary-ink" />
               <Skeleton v-if="loading" class="mt-2 h-8 w-16" />
               <p v-else class="mt-2 font-display text-3xl font-semibold">{{ stats.percent }}</p>
               <p class="text-xs text-muted-foreground">{{ t('stat_percent') }}</p>
@@ -218,7 +221,7 @@ const locationName = (id: string) => locations.byId.get(id)?.name ?? ''
 
     <p class="mt-10 text-sm text-muted-foreground">
       {{ t('start_help') }}
-      <a :href="settings.contactLink" class="text-primary underline">{{
+      <a :href="settings.contactLink" class="text-primary-ink underline">{{
         settings.settings.contact || t('error_contact_fallback')
       }}</a>
     </p>

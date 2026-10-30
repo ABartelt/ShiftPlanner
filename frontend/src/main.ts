@@ -1,5 +1,4 @@
-import '@fontsource-variable/montserrat'
-import '@fontsource-variable/bricolage-grotesque'
+import '@fontsource-variable/roboto'
 import './styles/main.css'
 
 import { createApp } from 'vue'

@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <meta name="theme-color" content="#141418" />
+    <meta name="theme-color" content="#000000" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <link rel="icon" href="/customization/favicon.png" />
@@ -23,7 +23,7 @@
         document.documentElement.classList.toggle('dark', dark)
         document
           .querySelector('meta[name="theme-color"]')
-          .setAttribute('content', dark ? '#141418' : '#f8f9fb')
+          .setAttribute('content', dark ? '#000000' : '#ffffff')
         // iOS only reads this when the home-screen app starts, so it follows the theme on next launch.
         document
           .querySelector('meta[name="apple-mobile-web-app-status-bar-style"]')

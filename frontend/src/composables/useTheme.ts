@@ -6,7 +6,7 @@ export type Theme = 'light' | 'dark'
 
 /* Keep in sync with the pre-paint script in index.html. */
 const STORAGE_KEY = 'theme'
-const THEME_COLOR: Record<Theme, string> = { light: '#f8f9fb', dark: '#141418' }
+const THEME_COLOR: Record<Theme, string> = { light: '#ffffff', dark: '#000000' }
 
 const preference = useStorage<ThemePreference>(STORAGE_KEY, 'system')
 const prefersDark = usePreferredDark()
