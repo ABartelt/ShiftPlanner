@@ -1,4 +1,4 @@
-﻿using System.Web;
+using System.Web;
 using Blazor.DownloadFileFast.Interfaces;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
@@ -47,10 +47,16 @@ public partial class DisplayNextShiftsComponent : IDisposable
 		{
 			var shifts = await ShiftService.GetAllShiftsFromUser(authState.User, 6, DateTime.UtcNow);
 			_myShifts = new(shifts.Select(s => s.ToAppointment()));
-			var availableShifts = await ShiftService.GetAllAvailableShifts(12, DateTime.UtcNow);
-			_freeShifts = [..availableShifts.Select(s => s.ToAppointment())];
-			await InvokeAsync(StateHasChanged);
 		}
+		else
+		{
+			// Anonymous visitors have no own shifts; the free ones come from the public API.
+			_myShifts = [];
+		}
+
+		var availableShifts = await ShiftService.GetAllAvailableShifts(12, DateTime.UtcNow);
+		_freeShifts = [..availableShifts.Select(s => s.ToAppointment())];
+		await InvokeAsync(StateHasChanged);
 	}
 
 	private static string MakeLocationUri(DayAppointment appointment, bool showOnlyUserShift = true)

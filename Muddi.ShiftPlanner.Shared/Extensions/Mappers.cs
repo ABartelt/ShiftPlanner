@@ -1,10 +1,11 @@
-﻿using Muddi.ShiftPlanner.Shared.Entities;
+using Muddi.ShiftPlanner.Shared.Entities;
 
 namespace Muddi.ShiftPlanner.Shared;
 
 public static class Mappers
 {
 	public static NotAssignedEmployee NotAssignedEmployee { get; } = new();
+	public static OccupiedEmployee OccupiedEmployee { get; } = new();
 
 	public static ShiftLocation MapToShiftLocation(this GetLocationResponse dto, GetShiftsCountResponse getShiftsCountResponse)
 	{

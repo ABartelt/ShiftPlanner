@@ -40,6 +40,7 @@ SHIFT_PLANNER_KEYCLOAK_URL=https://your-keycloak-url.com
 SHIFT_PLANNER_KEYCLOAK_REALM=muddi
 SHIFT_PLANNER_API_URL=https://your-api-endpoint.org
 SHIFT_PLANNER_CLIENT_URL=https://your-client-url.com
+SHIFT_PLANNER_ALLOW_REGISTRATION=false
 SHIFT_PLANNER_CLIENT_ID=shift-planner-server-api
 SHIFT_PLANNER_CLIENT_SECRET=<from-keycloak-step-4>
 KEYCLOAK_POSTGRES_PASSWORD=<secure-password>
@@ -50,6 +51,10 @@ KEYCLOAK_ADMIN_PASSWORD=<secure-password>
 - `SHIFT_PLANNER_KEYCLOAK_REALM` - the realm name (default `muddi`). You can rename it (e.g. `my-cool-party`) — the API and client pick it up from `.env` automatically
 - `SHIFT_PLANNER_API_URL` - your public API URL (used by the client app)
 - `SHIFT_PLANNER_CLIENT_URL` - your public client URL (used as the API's CORS origin)
+- `SHIFT_PLANNER_ALLOW_REGISTRATION` - `true` or `false` (default). Only controls whether "Registrieren" buttons are
+  shown to visitors; set it to `true` when your realm allows self-registration (see 4.5). Anonymous browsing of free
+  shifts itself is off by default and is enabled by a super-admin in the app under
+  *Admin → Einstellungen → Öffentliche Schichtübersicht*.
 
 > **Existing deployments (breaking):** The `MUDDI_*` env vars have been renamed to `SHIFT_PLANNER_*`,
 > and the new URL/realm vars have been added — update your `.env` accordingly.

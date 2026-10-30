@@ -1,4 +1,4 @@
-﻿using Muddi.ShiftPlanner.Client.Entities;
+using Muddi.ShiftPlanner.Client.Entities;
 using Muddi.ShiftPlanner.Shared;
 using Muddi.ShiftPlanner.Shared.Entities;
 using Radzen;
@@ -24,7 +24,8 @@ public static class RenderExtensions
 				foreach (var container in containers)
 				{
 					var c = container.BackgroundColor;
-					var maxTimeShift = container.Framework.RolesCount.Select(x => x.Key.StartingTimeShift).Max();
+					var maxTimeShift = container.Framework.RolesCount.Select(x => x.Key.StartingTimeShift)
+						.DefaultIfEmpty(TimeSpan.Zero).Max();
 
 					if (args.Start >= container.StartTime.ToLocalTime() &&
 					    args.Start < container.EndTime.Add(maxTimeShift).ToLocalTime())
@@ -38,8 +39,9 @@ public static class RenderExtensions
 		}
 	}
 
+	/// <param name="userKeycloakId">The viewer's id, or null for anonymous visitors (no own-shift highlighting).</param>
 	public static void SetAppointmentRenderStyle(this SchedulerAppointmentRenderEventArgs<Appointment> args,
-		Guid userKeycloakId)
+		Guid? userKeycloakId)
 	{
 		args.Attributes["style"] = string.Empty;
 
@@ -93,9 +95,19 @@ public static class RenderExtensions
 			return;
 		}
 
+		// Occupied by somebody the viewer may not see (anonymous browsing) - muted, not clickable
+		if (shift.User == Mappers.OccupiedEmployee)
+		{
+			var borderColor = !string.IsNullOrEmpty(shift.Type.Color) ? shift.Type.Color : "#999999";
+			args.Attributes["style"] +=
+				$"background: #e9e9e9; color: #777777; border: 1px solid {borderColor}; cursor: default;";
+			args.Attributes["title"] = "Diese Schicht ist schon besetzt";
+			return;
+		}
+
 		var normalBg = !string.IsNullOrEmpty(shift.Type.Color) ? shift.Type.Color : "#cccccc";
 		args.Attributes["style"] += $"background: {normalBg};";
-		if (shift.User.KeycloakId == userKeycloakId)
+		if (userKeycloakId is { } me && shift.User.KeycloakId == me)
 		{
 			args.Attributes["style"] += "outline: 2px dashed #852121;";
 		}

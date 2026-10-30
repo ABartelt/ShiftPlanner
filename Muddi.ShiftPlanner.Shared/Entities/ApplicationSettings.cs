@@ -42,6 +42,14 @@ public record ApplicationSettings
 	public string MemberName { get; set; } = "MUDDIs";
 
 	/// <summary>
+	/// When enabled, visitors without a login may browse the current season's schedule through the
+	/// anonymous <c>/public/*</c> API: locations, free/occupied slot counts per time and shift type,
+	/// and the next free shifts. Never exposes who booked a shift, block reasons, admin-only locations
+	/// or admin-only shift types. Default is off so a fresh deployment stays private.
+	/// </summary>
+	public bool PublicBrowsingEnabled { get; set; } = false;
+
+	/// <summary>
 	/// Generates a mailto: link for the contact email, or "#" if empty.
 	/// </summary>
 	public string ContactHref => string.IsNullOrEmpty(Contact) || Contact.Contains('@') ? (string.IsNullOrEmpty(Contact) ? "#" : "mailto:" + Contact) : Contact;

@@ -1,6 +1,6 @@
-﻿@page "/locations/{Id:guid}"
+@page "/locations/{Id:guid}"
 @using Muddi.ShiftPlanner.Client.Entities
-@attribute [Authorize]
+@* No [Authorize]: anonymous visitors may browse free slots when public browsing is enabled (see PublicAccessGate). *@
 @if (_location is null)
 {
     <div class=""
@@ -25,11 +25,21 @@ else
             </div>
         }
         <div class="flex-row d-flex justify-content-between">
-            <RadzenButton Text="Nur meine Schichten"
-                          class="only-my-shifts-button"
-                          Style="@(ShowOnlyUsersShifts ? "background: var(--main-primary); box-shadow: inset 0 3px 0 0 rgb(0 0 0 / 10%);" : "background: grey")"
-                          Click="ShowOnlyUserShiftsButtonPressed">
-            </RadzenButton>
+            @if (_isAuthenticated)
+            {
+                <RadzenButton Text="Nur meine Schichten"
+                              class="only-my-shifts-button"
+                              Style="@(ShowOnlyUsersShifts ? "background: var(--main-primary); box-shadow: inset 0 3px 0 0 rgb(0 0 0 / 10%);" : "background: grey")"
+                              Click="ShowOnlyUserShiftsButtonPressed">
+                </RadzenButton>
+            }
+            else
+            {
+                <div class="d-flex align-items-center" style="color: #555">
+                    <RadzenIcon Icon="info" class="mr-1"/>
+                    <span>Klick auf eine freie Schicht, um dich einzutragen.</span>
+                </div>
+            }
             <RadzenDatePicker TValue="DateTime"
                               ShowTime="false"
                               AllowInput="false"

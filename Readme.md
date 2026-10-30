@@ -60,6 +60,23 @@ Season
 │       └── Shifts (who is assigned)
 ```
 
+## Public browsing (optional)
+
+By default every page and every API endpoint requires a login. A super-admin can switch on **Öffentliche
+Schichtübersicht** under *Admin → Einstellungen* (`ApplicationSettings.PublicBrowsingEnabled`). Then visitors
+without an account can browse the current season: locations, free/occupied places per time and shift type, and the
+next free shifts. The moment they click a free slot they pick the shift type, are sent to Keycloak to log in or
+register, and come back to that slot with the booking dialog pre-filled. Nothing is booked without an explicit
+confirmation.
+
+What stays private no matter what: who booked a shift, block reasons, admin-only locations, admin-only shift types,
+other seasons, and every write operation. The only anonymous API surface is `GET /public/*` (plus `GET /version`);
+an architecture test in `Muddi.ShiftPlanner.Tests.Api` fails if any other endpoint becomes anonymous or if a public
+response type gains a personal-data property.
+
+Client side, set `OAuth:AllowRegistration` in `wwwroot/appsettings.json` (Docker: `SHIFT_PLANNER_ALLOW_REGISTRATION`)
+to `true` if the realm allows self-registration, so that "Registrieren" buttons are shown.
+
 ## Deploy
 
 See [deploy readme](./Docker/deployment/muddi-shift-planner/Readme.md)
@@ -101,6 +118,16 @@ the API of their own workspace.
 In [keycloak admin console](http://localhost:28080/admin/) login with user `admin` and pass `admin`
 
 You can set user roles via Client Roles for shift-planner (e.g. admin, editor, super-admin or viewer)
+
+### Tests
+
+```shell
+dotnet test Muddi.ShiftPlanner.Tests.Unit -c Release
+dotnet test Muddi.ShiftPlanner.Tests.Api            # needs Docker: starts a throw-away Postgres via Testcontainers
+```
+
+EF Core migrations use the local tool manifest (`.config/dotnet-tools.json`), e.g.
+`dotnet dotnet-ef migrations add <Name> --project Muddi.ShiftPlanner.Server.Database --startup-project Muddi.ShiftPlanner.Server.Api`.
 
 ### Dotnet secrets
 

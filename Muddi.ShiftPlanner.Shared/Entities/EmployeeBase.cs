@@ -23,6 +23,19 @@ public class NotAssignedEmployee : Employee
 	}
 }
 
+/// <summary>
+/// Placeholder for a place that is taken by someone whose identity the viewer may not see
+/// (anonymous browsing). Carries no name and no real id.
+/// </summary>
+public class OccupiedEmployee : Employee
+{
+	public static readonly Guid SentinelId = new("00000000-0000-0000-0000-000000000001");
+
+	public OccupiedEmployee() : base(SentinelId, string.Empty, "Besetzt", null)
+	{
+	}
+}
+
 public class Employee : EmployeeBase
 {
 	public string Email { get; }

@@ -36,4 +36,9 @@ public class UpdateAppSettingsRequest
 	/// Member/organization name (e.g. "MUDDIs").
 	/// </summary>
 	public string MemberName { get; init; } = "MUDDIs";
+
+	/// <summary>
+	/// Allow anonymous browsing of free shifts via the public API. See <see cref="Entities.ApplicationSettings.PublicBrowsingEnabled"/>.
+	/// </summary>
+	public bool PublicBrowsingEnabled { get; init; } = false;
 }

@@ -1,9 +1,11 @@
 @page "/"
 @using Muddi.ShiftPlanner.Client.Pages.Statistics
-@attribute [Authorize]
+@inject PendingShiftClaimService PendingClaims
+@inject PublicAccessOptions PublicOptions
 <AuthorizeView>
 	<Authorized>
 		<h2>@Settings.Greeting @(context.User.Identity?.Name)!</h2>
+		<PendingClaimBanner/>
 		<br/>
 		<StatisticsDashboardComponent/>
 		<DisplayNextShiftsComponent/>
@@ -12,8 +14,27 @@
 	</Authorized>
 
 	<NotAuthorized>
-		Du bist nicht eingeloggt!
-		<a href="/authentication/login">Login</a>
+		<h2>@Settings.Greeting!</h2>
+		<PendingClaimBanner/>
+		<RadzenCard class="mb-4 public-intro-card">
+			<h4>Schichten ansehen ohne Login</h4>
+			<p>
+				Du kannst alle freien Schichten ansehen, ohne dich anzumelden. Sobald du dich für eine Schicht eintragen
+				willst, klick sie einfach an – dann meldest du dich kurz an@(PublicOptions.AllowRegistration ? " (oder registrierst dich)" : "")
+				und landest genau dort wieder.
+			</p>
+			<div class="d-flex flex-wrap" style="gap: 8px">
+				<RadzenButton Text="Anmelden" Icon="login" ButtonStyle="ButtonStyle.Primary" Click="@(() => PendingClaims.NavigateToLogin("/"))"/>
+				@if (PublicOptions.AllowRegistration)
+				{
+					<RadzenButton Text="Registrieren" Icon="person_add" ButtonStyle="ButtonStyle.Secondary" Click="@(() => PendingClaims.NavigateToLogin("/", register: true))"/>
+				}
+			</div>
+		</RadzenCard>
+		<StatisticsDashboardComponent/>
+		<DisplayNextShiftsComponent/>
+		<br/>
+		<p>Wenn du Hilfe benötigst wendest du dich am Besten an <a href="@Settings.ContactHref">@Settings.Contact</a></p>
 	</NotAuthorized>
 </AuthorizeView>
 

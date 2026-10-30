@@ -33,6 +33,7 @@ services:
       SHIFT_PLANNER_KEYCLOAK_URL: ${SHIFT_PLANNER_KEYCLOAK_URL}
       SHIFT_PLANNER_KEYCLOAK_REALM: ${SHIFT_PLANNER_KEYCLOAK_REALM}
       SHIFT_PLANNER_API_URL: ${SHIFT_PLANNER_API_URL}
+      SHIFT_PLANNER_ALLOW_REGISTRATION: ${SHIFT_PLANNER_ALLOW_REGISTRATION:-false}
     volumes:
       - ./config/muddi/customization:/usr/share/nginx/html/customization
       - ./config/muddi/manifest.json:/usr/share/nginx/html/manifest.json

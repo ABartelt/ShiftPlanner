@@ -524,6 +524,8 @@ namespace Muddi.ShiftPlanner.Server.Database.Migrations
                             b1.Property<string>("MemberName")
                                 .IsRequired();
 
+                            b1.Property<bool>("PublicBrowsingEnabled");
+
                             b1.Property<TimeSpan>("StartTime");
 
                             b1.Property<string>("Subtitle")

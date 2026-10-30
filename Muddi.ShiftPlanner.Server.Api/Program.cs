@@ -44,6 +44,7 @@ builder.Services.AddDatabaseMigrations();
 builder.Services.AddMemoryCache();
 
 builder.Services.AddTransient<ExcelService>();
+builder.Services.AddScoped<IAppSettingsProvider, AppSettingsProvider>();
 builder.Services.AddSingleton<NotificationChannelSettings>();
 
 var app = builder.Build();
@@ -83,4 +84,9 @@ catch (DbException dbexc)
 {
 	app.Logger.LogCritical("Database error: {Message}", dbexc.Message);
 	app.Logger.LogTrace("Debug: {Dbg}", dbexc.ToString());
+}
+
+/// <summary>Makes the entry point visible to <c>WebApplicationFactory&lt;Program&gt;</c> in the API tests.</summary>
+public partial class Program
+{
 }

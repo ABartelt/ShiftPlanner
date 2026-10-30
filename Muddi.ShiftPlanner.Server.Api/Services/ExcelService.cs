@@ -1,4 +1,4 @@
-﻿using ClosedXML.Excel;
+using ClosedXML.Excel;
 using DocumentFormat.OpenXml.Drawing.Charts;
 using DocumentFormat.OpenXml.Spreadsheet;
 using DocumentFormat.OpenXml.Wordprocessing;
@@ -24,7 +24,7 @@ public class ExcelService
 
 		var availableShifts = location.Containers
 			.SelectMany(container => container.GetStartTimes()
-				.SelectMany(container.GetAvailableShiftTypes))
+				.SelectMany(startTime => container.GetAvailableShiftTypes(startTime)))
 			.ToArray();
 
 		foreach (var containerGroup in containerGroups)
