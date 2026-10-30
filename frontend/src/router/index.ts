@@ -22,6 +22,11 @@ export const router = createRouter({
     },
     { path: '/my-shifts', name: 'my-shifts', component: () => import('@/views/MyShiftsView.vue') },
     {
+      path: '/notifications',
+      name: 'notifications',
+      component: () => import('@/views/NotificationsView.vue'),
+    },
+    {
       path: '/help',
       name: 'help',
       component: () => import('@/views/HelpView.vue'),

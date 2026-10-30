@@ -45,6 +45,7 @@ builder.Services.AddMemoryCache();
 
 builder.Services.AddTransient<ExcelService>();
 builder.Services.AddScoped<IAppSettingsProvider, AppSettingsProvider>();
+builder.Services.AddSingleton<NotificationChannelSettings>();
 
 var app = builder.Build();
 
