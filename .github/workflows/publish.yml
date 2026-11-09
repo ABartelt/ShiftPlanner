@@ -1,5 +1,7 @@
 name: Publish Docker image
 
+# Release images: run this workflow manually on a release/v* tag ref (the tag push alone did not trigger it in this
+# repository, 2026-11-09). Any other ref builds dev-<sha> images.
 on:
   push:
     tags:
@@ -57,7 +59,7 @@ jobs:
           echo "Full Version: $FULL_VERSION"
 
       - name: Set version info for manual dispatch
-        if: github.event_name == 'workflow_dispatch'
+        if: "!startsWith(github.ref, 'refs/tags/release/v')"
         run: |
           SHORT_SHA=$(echo ${{ github.sha }} | cut -c1-7)
           LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null | sed 's/^release\/v//')
@@ -69,13 +71,13 @@ jobs:
           echo "Base version: $LAST_TAG, Short SHA: $SHORT_SHA"
 
       - name: Update version in index.html (tag push)
-        if: github.event_name == 'push' && matrix.app.name == 'client'
+        if: startsWith(github.ref, 'refs/tags/release/v') && matrix.app.name == 'client'
         run: |
           sed -i 's/{{VERSION}}/${{ env.FULL_VERSION }}/g' Muddi.ShiftPlanner.Client/wwwroot/index.html
           sed -i "s/{{VERSION}}/${{ env.FULL_VERSION }}/g" Muddi.ShiftPlanner.Client/wwwroot/service-worker.published.js
 
       - name: Update assembly versions (tag push)
-        if: github.event_name == 'push' && matrix.app.path != 'frontend'
+        if: startsWith(github.ref, 'refs/tags/release/v') && matrix.app.path != 'frontend'
         run: |
           VERSION=${{ env.FULL_VERSION }}
           CLEAN_VERSION=${VERSION#v}
@@ -84,13 +86,13 @@ jobs:
           sed -i "s/AssemblyFileVersion(\"[^\"]*\")/AssemblyFileVersion(\"$CLEAN_VERSION\")/g" ${{ matrix.app.path }}/Properties/Assembly.cs
 
       - name: Update version in index.html (manual dispatch)
-        if: github.event_name == 'workflow_dispatch' && matrix.app.name == 'client'
+        if: "!startsWith(github.ref, 'refs/tags/release/v') && matrix.app.name == 'client'"
         run: |
           sed -i 's/{{VERSION}}/${{ env.SHORT_SHA }}/g' Muddi.ShiftPlanner.Client/wwwroot/index.html
           sed -i "s/{{VERSION}}/${{ env.SHORT_SHA }}/g" Muddi.ShiftPlanner.Client/wwwroot/service-worker.published.js
 
       - name: Update assembly versions (manual dispatch)
-        if: github.event_name == 'workflow_dispatch' && matrix.app.path != 'frontend'
+        if: "!startsWith(github.ref, 'refs/tags/release/v') && matrix.app.path != 'frontend'"
         run: |
           BASE_VERSION=${{ env.BASE_VERSION }}
           SHORT_SHA=${{ env.SHORT_SHA }}
@@ -111,7 +113,7 @@ jobs:
 
       - name: Define Tags
         run: |
-          if [[ ${{ github.event_name }} == 'workflow_dispatch' ]]; then
+          if [[ "${{ github.ref }}" != refs/tags/release/v* ]]; then
             TAGS="${{ env.REGISTRY }}/${{ env.lower_repo }}/${{ matrix.app.name }}:dev-${{ env.SHORT_SHA }}"
           else
             TAGS="${{ env.REGISTRY }}/${{ env.lower_repo }}/${{ matrix.app.name }}:${{ env.FULL_VERSION }},"
