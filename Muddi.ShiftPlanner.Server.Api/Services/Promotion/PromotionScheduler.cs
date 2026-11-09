@@ -22,8 +22,10 @@ public class PromotionScheduler(
 		// Wait for the database migrations, which run while the app starts.
 		var started = new TaskCompletionSource();
 		await using (lifetime.ApplicationStarted.Register(() => started.TrySetResult()))
-		await using (stoppingToken.Register(() => started.TrySetCanceled(stoppingToken)))
+		await using (stoppingToken.Register(() => started.TrySetResult()))
 			await started.Task;
+		if (stoppingToken.IsCancellationRequested)
+			return;
 
 		using var timer = new PeriodicTimer(TimeSpan.FromMinutes(1));
 		do
