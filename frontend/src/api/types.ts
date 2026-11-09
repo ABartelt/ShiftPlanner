@@ -177,3 +177,98 @@ export interface EmployeeResponse {
 export interface CreatedResponse {
   id: Guid
 }
+
+export type PromotionChannelKind = 'Telegram' | 'Slack' | 'Signal'
+export type PromotionRunKind = 'Daily' | 'Recruiting' | 'LastCall' | 'Manual' | 'Test'
+export type PromotionFormat = 'Plain' | 'WhatsApp' | 'Signal' | 'Telegram' | 'Slack'
+export type PromotionLogStatus = 'Sent' | 'Failed' | 'Skipped'
+
+export interface PromotionChannelConfig {
+  /** Telegram chat id or Signal group id */
+  target: string
+  targetName: string
+  signalNumber: string
+  serviceUrl: string
+  /** empty = all locations */
+  locationIds: Guid[]
+}
+export interface PromotionChannelResponse {
+  id: Guid
+  seasonId: Guid
+  name: string
+  kind: PromotionChannelKind
+  enabled: boolean
+  config: PromotionChannelConfig
+  /** the secret itself is never returned */
+  hasSecret: boolean
+  secretHint?: string | null
+  lastTestAt?: IsoDate | null
+  lastTestOk?: boolean | null
+  lastTestMessage?: string | null
+}
+export interface CreatePromotionChannelRequest {
+  name: string
+  kind: PromotionChannelKind
+  enabled: boolean
+  config: PromotionChannelConfig
+  secret?: string | null
+}
+export interface UpdatePromotionChannelRequest {
+  id: Guid
+  name: string
+  enabled: boolean
+  config: PromotionChannelConfig
+  /** null keeps the stored secret, '' removes it */
+  secret: string | null
+}
+/** .NET DayOfWeek: 0 = Sunday */
+export type DayOfWeek = 0 | 1 | 2 | 3 | 4 | 5 | 6
+export interface PromotionSchedule {
+  enabled: boolean
+  timeZone: string
+  publicBaseUrl: string
+  minOpenShifts: number
+  dailyEnabled: boolean
+  dailySendTime: Duration
+  dailyLookaheadDays: number
+  recruitingEnabled: boolean
+  recruitingDay: DayOfWeek
+  recruitingSendTime: Duration
+  lastCallEnabled: boolean
+  lastCallHoursBefore: number
+  quietFrom: Duration
+  quietUntil: Duration
+}
+export interface PromotionScheduleResponse {
+  schedule: PromotionSchedule
+  nextRuns: { kind: PromotionRunKind; sendAt: IsoDate }[]
+  enabledChannels: number
+}
+export interface PromotionPreviewResponse {
+  text: string
+  totalOpen: number
+  signUpUrl: string
+}
+export interface PromotionLogResponse {
+  id: Guid
+  channelId?: Guid | null
+  channelName: string
+  runKind: PromotionRunKind
+  sentAt: IsoDate
+  openShifts: number
+  status: PromotionLogStatus
+  error?: string | null
+}
+export interface PromotionTestResponse {
+  ok: boolean
+  message: string
+}
+export interface TelegramChatResponse {
+  id: string
+  title: string
+  type: string
+}
+export interface SignalGroupResponse {
+  id: string
+  name: string
+}

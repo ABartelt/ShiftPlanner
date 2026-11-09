@@ -156,5 +156,43 @@ public class CreateEndpoint : CrudCreateEndpoint<CreateSeasonRequest, GetSeasonR
 				newLocation.Containers.Add(newContainer);
 			}
 		}
+
+		// 5. Copy promotion channels and schedule. They start disabled, so nothing is posted to last
+		// event's groups by accident; secrets stay encrypted with the same key ring.
+		var sourceChannels = await Database.PromotionChannels
+			.Where(c => c.Season.Id == sourceSeasonId)
+			.AsNoTracking()
+			.ToListAsync(ct);
+		foreach (var sourceChannel in sourceChannels)
+		{
+			Database.PromotionChannels.Add(new PromotionChannelEntity
+			{
+				Season = targetSeason,
+				Name = sourceChannel.Name,
+				Kind = sourceChannel.Kind,
+				Enabled = false,
+				Config = sourceChannel.Config with
+				{
+					LocationIds = sourceChannel.Config.LocationIds
+						.Where(locationMapping.ContainsKey)
+						.Select(id => locationMapping[id].Id)
+						.ToList()
+				},
+				EncryptedSecret = sourceChannel.EncryptedSecret,
+				SecretHint = sourceChannel.SecretHint
+			});
+		}
+
+		var sourceSchedule = await Database.PromotionSchedules
+			.AsNoTracking()
+			.FirstOrDefaultAsync(s => s.Season.Id == sourceSeasonId, ct);
+		if (sourceSchedule is not null)
+		{
+			Database.PromotionSchedules.Add(new PromotionScheduleEntity
+			{
+				Season = targetSeason,
+				Settings = sourceSchedule.Settings with { Enabled = false }
+			});
+		}
 	}
 }

@@ -91,23 +91,23 @@ services:
     ports:
       - "25432:5432"
 
-  #shift-planner-alerting:
-  #  restart: unless-stopped
-  #  image: ghcr.io/muddi-markt/shiftplanner/alerting:v1.4
-  #  build:
-  #    context: ../Muddi.ShiftPlanner.Services.Alerting
-  #    dockerfile: Dockerfile
-  #    target: final
-  #    args:
-  #      - TARGETARCH=arm64
-  #  depends_on:
-  #    - postgres
-  #  networks:
-  #    - shiftplanner
+  # Optional: Signal sender for "Schichten bewerben". Start with: docker compose --profile signal up -d
+  # The REST API has no authentication, so it must only be reachable inside this network (no ports).
+  signal-api:
+    profiles: ["signal"]
+    restart: unless-stopped
+    image: bbernhard/signal-cli-rest-api:latest
+    environment:
+      MODE: native
+    volumes:
+      - signal_data:/home/.local/share/signal-cli
+    networks:
+      - shiftplanner
 
 volumes:
   postgres_data:
   keycloak_data:
+  signal_data:
 
 networks:
   shiftplanner:

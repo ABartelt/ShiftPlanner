@@ -90,6 +90,12 @@ export const router = createRouter({
       meta: { admin: true },
     },
     {
+      path: '/admin/promote',
+      name: 'admin-promote',
+      component: () => import('@/views/admin/PromoteView.vue'),
+      meta: { admin: true },
+    },
+    {
       path: '/admin/settings',
       name: 'admin-settings',
       component: () => import('@/views/admin/SettingsView.vue'),

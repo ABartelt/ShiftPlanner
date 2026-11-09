@@ -157,6 +157,37 @@ docker-compose up -d shift-planner-api
 
 ---
 
+## Optional: Promote open shifts (WhatsApp, Signal, Telegram, Slack)
+
+Admins find **Schichten bewerben** in the admin menu. Everything is configured there, per event (season):
+
+- **Teilen**: builds a message with the open shifts of a date range and shares it to WhatsApp, the phone's share
+  menu (Signal, …) or the clipboard. WhatsApp has no usable API for groups, so it is always shared this way.
+- **Kanäle**: Telegram groups, Slack channels (incoming webhook) and Signal groups the API posts to by itself.
+  Tokens and webhook URLs are encrypted (ASP.NET Core Data Protection, keys in the `data_protection_keys`
+  table) and never sent back to the browser. Anyone with access to the database can decrypt them.
+- **Zeitplan & Verlauf**: weekly posts before the event, daily posts during it, "last call" posts shortly
+  before a shift starts, and a log of every post.
+
+Telegram and Slack need no extra service, but the API container must be able to reach `api.telegram.org`
+and `hooks.slack.com`.
+
+Signal needs the [signal-cli-rest-api](https://github.com/bbernhard/signal-cli-rest-api) container and a phone
+number with a Signal account (ideally a dedicated one):
+
+```bash
+docker compose --profile signal up -d signal-api
+```
+
+Then, in the channel dialog, click **Mit Signal verknüpfen** and scan the QR code with the phone of that number
+(Signal → Settings → Linked devices). The number must be a member of the groups it should post to. The API
+reaches the container at `http://signal-api:8080`; override it with `Promotion__SignalServiceUrl` or per
+channel.
+
+When an event is copied, its channels and schedule are copied too, but switched off.
+
+---
+
 ## Optional: Customization
 
 Customize the client appearance in `config/muddi/customization/`:

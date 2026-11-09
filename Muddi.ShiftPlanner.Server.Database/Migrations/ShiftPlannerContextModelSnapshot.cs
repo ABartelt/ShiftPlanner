@@ -17,10 +17,33 @@ namespace Muddi.ShiftPlanner.Server.Database.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "10.0.7")
+                .HasAnnotation("ProductVersion", "10.0.9")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
+
+            modelBuilder.Entity("Microsoft.AspNetCore.DataProtection.EntityFrameworkCore.DataProtectionKey", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("FriendlyName")
+                        .HasColumnType("text")
+                        .HasColumnName("friendly_name");
+
+                    b.Property<string>("Xml")
+                        .HasColumnType("text")
+                        .HasColumnName("xml");
+
+                    b.HasKey("Id")
+                        .HasName("pk_data_protection_keys");
+
+                    b.ToTable("data_protection_keys", (string)null);
+                });
 
             modelBuilder.Entity("Muddi.ShiftPlanner.Server.Database.Entities.AppSettingsEntity", b =>
                 {
@@ -32,6 +55,152 @@ namespace Muddi.ShiftPlanner.Server.Database.Migrations
                         .HasName("pk_app_settings");
 
                     b.ToTable("app_settings", (string)null);
+                });
+
+            modelBuilder.Entity("Muddi.ShiftPlanner.Server.Database.Entities.PromotionChannelEntity", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<bool>("Enabled")
+                        .HasColumnType("boolean")
+                        .HasColumnName("enabled");
+
+                    b.Property<string>("EncryptedSecret")
+                        .HasColumnType("text")
+                        .HasColumnName("encrypted_secret");
+
+                    b.Property<string>("Kind")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("kind");
+
+                    b.Property<DateTime?>("LastTestAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("last_test_at");
+
+                    b.Property<string>("LastTestMessage")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("last_test_message");
+
+                    b.Property<bool?>("LastTestOk")
+                        .HasColumnType("boolean")
+                        .HasColumnName("last_test_ok");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("name");
+
+                    b.Property<Guid>("SeasonId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("season_id");
+
+                    b.Property<string>("SecretHint")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("secret_hint");
+
+                    b.HasKey("Id")
+                        .HasName("pk_promotion_channels");
+
+                    b.HasIndex("SeasonId")
+                        .HasDatabaseName("ix_promotion_channels_season_id");
+
+                    b.ToTable("promotion_channels", (string)null);
+                });
+
+            modelBuilder.Entity("Muddi.ShiftPlanner.Server.Database.Entities.PromotionLogEntity", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<Guid?>("ChannelId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("channel_id");
+
+                    b.Property<string>("ChannelName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("channel_name");
+
+                    b.Property<string>("Error")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("error");
+
+                    b.Property<int>("OpenShifts")
+                        .HasColumnType("integer")
+                        .HasColumnName("open_shifts");
+
+                    b.Property<string>("RunKey")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("run_key");
+
+                    b.Property<string>("RunKind")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("run_kind");
+
+                    b.Property<Guid>("SeasonId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("season_id");
+
+                    b.Property<DateTime>("SentAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("sent_at");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("status");
+
+                    b.HasKey("Id")
+                        .HasName("pk_promotion_logs");
+
+                    b.HasIndex("ChannelId")
+                        .HasDatabaseName("ix_promotion_logs_channel_id");
+
+                    b.HasIndex("RunKey")
+                        .HasDatabaseName("ix_promotion_logs_run_key");
+
+                    b.HasIndex("SeasonId")
+                        .HasDatabaseName("ix_promotion_logs_season_id");
+
+                    b.ToTable("promotion_logs", (string)null);
+                });
+
+            modelBuilder.Entity("Muddi.ShiftPlanner.Server.Database.Entities.PromotionScheduleEntity", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<Guid>("SeasonId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("season_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_promotion_schedules");
+
+                    b.HasIndex("SeasonId")
+                        .IsUnique()
+                        .HasDatabaseName("ix_promotion_schedules_season_id");
+
+                    b.ToTable("promotion_schedules", (string)null);
                 });
 
             modelBuilder.Entity("Muddi.ShiftPlanner.Server.Database.Entities.SeasonEntity", b =>
@@ -345,6 +514,135 @@ namespace Muddi.ShiftPlanner.Server.Database.Migrations
                                 .HasForeignKey("AppSettingsEntityId")
                                 .HasConstraintName("fk_app_settings_app_settings_id");
                         });
+
+                    b.Navigation("Settings")
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Muddi.ShiftPlanner.Server.Database.Entities.PromotionChannelEntity", b =>
+                {
+                    b.HasOne("Muddi.ShiftPlanner.Server.Database.Entities.SeasonEntity", "Season")
+                        .WithMany()
+                        .HasForeignKey("SeasonId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_promotion_channels_seasons_season_id");
+
+                    b.OwnsOne("Muddi.ShiftPlanner.Shared.Entities.PromotionChannelConfig", "Config", b1 =>
+                        {
+                            b1.Property<Guid>("PromotionChannelEntityId");
+
+                            b1.PrimitiveCollection<string>("LocationIds")
+                                .IsRequired();
+
+                            b1.Property<string>("ServiceUrl")
+                                .IsRequired();
+
+                            b1.Property<string>("SignalNumber")
+                                .IsRequired();
+
+                            b1.Property<string>("Target")
+                                .IsRequired();
+
+                            b1.Property<string>("TargetName")
+                                .IsRequired();
+
+                            b1.HasKey("PromotionChannelEntityId");
+
+                            b1.ToTable("promotion_channels");
+
+                            b1
+                                .ToJson("config")
+                                .HasColumnType("jsonb");
+
+                            b1.WithOwner()
+                                .HasForeignKey("PromotionChannelEntityId")
+                                .HasConstraintName("fk_promotion_channels_promotion_channels_id");
+                        });
+
+                    b.Navigation("Config")
+                        .IsRequired();
+
+                    b.Navigation("Season");
+                });
+
+            modelBuilder.Entity("Muddi.ShiftPlanner.Server.Database.Entities.PromotionLogEntity", b =>
+                {
+                    b.HasOne("Muddi.ShiftPlanner.Server.Database.Entities.PromotionChannelEntity", "Channel")
+                        .WithMany()
+                        .HasForeignKey("ChannelId")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .HasConstraintName("fk_promotion_logs_promotion_channels_channel_id");
+
+                    b.HasOne("Muddi.ShiftPlanner.Server.Database.Entities.SeasonEntity", "Season")
+                        .WithMany()
+                        .HasForeignKey("SeasonId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_promotion_logs_seasons_season_id");
+
+                    b.Navigation("Channel");
+
+                    b.Navigation("Season");
+                });
+
+            modelBuilder.Entity("Muddi.ShiftPlanner.Server.Database.Entities.PromotionScheduleEntity", b =>
+                {
+                    b.HasOne("Muddi.ShiftPlanner.Server.Database.Entities.SeasonEntity", "Season")
+                        .WithMany()
+                        .HasForeignKey("SeasonId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_promotion_schedules_seasons_season_id");
+
+                    b.OwnsOne("Muddi.ShiftPlanner.Shared.Entities.PromotionSchedule", "Settings", b1 =>
+                        {
+                            b1.Property<Guid>("PromotionScheduleEntityId");
+
+                            b1.Property<bool>("DailyEnabled");
+
+                            b1.Property<int>("DailyLookaheadDays");
+
+                            b1.Property<TimeSpan>("DailySendTime");
+
+                            b1.Property<bool>("Enabled");
+
+                            b1.Property<bool>("LastCallEnabled");
+
+                            b1.Property<int>("LastCallHoursBefore");
+
+                            b1.Property<int>("MinOpenShifts");
+
+                            b1.Property<string>("PublicBaseUrl")
+                                .IsRequired();
+
+                            b1.Property<TimeSpan>("QuietFrom");
+
+                            b1.Property<TimeSpan>("QuietUntil");
+
+                            b1.Property<int>("RecruitingDay");
+
+                            b1.Property<bool>("RecruitingEnabled");
+
+                            b1.Property<TimeSpan>("RecruitingSendTime");
+
+                            b1.Property<string>("TimeZone")
+                                .IsRequired();
+
+                            b1.HasKey("PromotionScheduleEntityId");
+
+                            b1.ToTable("promotion_schedules");
+
+                            b1
+                                .ToJson("settings")
+                                .HasColumnType("jsonb");
+
+                            b1.WithOwner()
+                                .HasForeignKey("PromotionScheduleEntityId")
+                                .HasConstraintName("fk_promotion_schedules_promotion_schedules_id");
+                        });
+
+                    b.Navigation("Season");
 
                     b.Navigation("Settings")
                         .IsRequired();

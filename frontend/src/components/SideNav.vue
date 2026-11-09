@@ -8,6 +8,7 @@ import {
   Home,
   Layers,
   MapPin,
+  Megaphone,
   Settings,
   Shapes,
   Sparkles,
@@ -29,6 +30,7 @@ const adminItems = computed(() => [
   { to: '/admin/locations', label: t('nav_admin_locations'), icon: Shapes },
   { to: '/admin/setup', label: t('nav_setup'), icon: Sparkles },
   { to: '/statistics', label: t('nav_statistics'), icon: BarChart3 },
+  { to: '/admin/promote', label: t('nav_promote'), icon: Megaphone },
   { to: '/admin/export', label: t('nav_export'), icon: Download },
   ...(auth.isSuperAdmin.value
     ? [{ to: '/admin/settings', label: t('nav_settings'), icon: Settings }]
