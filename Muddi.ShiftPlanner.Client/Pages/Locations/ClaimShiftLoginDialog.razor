@@ -1,0 +1,95 @@
+@using Muddi.ShiftPlanner.Client.Entities
+@using Muddi.ShiftPlanner.Shared.Contracts.v1.Responses
+@inject DialogService DialogService
+@inject PendingShiftClaimService PendingClaims
+@inject PublicAccessOptions PublicOptions
+
+@*
+    Shown to anonymous visitors who clicked a free slot. Lets them pick the shift type, then sends them to
+    Keycloak. Their choice is kept in localStorage and resumed on this location page after login.
+*@
+<h3>@LocationName</h3>
+<p style="font-size: 1.1rem">
+    @StartLocal.ToString("ddd dd.MM.") · @StartLocal.ToString("HH:mm") – @EndLocal.ToString("HH:mm")
+</p>
+
+<div class="row">
+    <div class="col-md-4 align-items-center d-flex">
+        <RadzenLabel Text="Schichtart"/>
+    </div>
+    <div class="col-md-8">
+        @if (AvailableTypes.Count > 1)
+        {
+            <RadzenDropDown
+                Style="width:200px;"
+                TValue="GetShiftTypesResponse"
+                TextProperty="@nameof(GetShiftTypesResponse.Name)"
+                Data="@AvailableTypes"
+                @bind-Value="@_selectedType">
+                <Template Context="type">@(((GetShiftTypesResponse)type).Name)</Template>
+            </RadzenDropDown>
+        }
+        else
+        {
+            <RadzenTextBox Style="width:200px;" ReadOnly="true" Value="@(_selectedType?.Name ?? "Keine freie Schicht")"/>
+        }
+    </div>
+</div>
+
+@if (!string.IsNullOrWhiteSpace(_selectedType?.Description))
+{
+    <p class="mt-2" style="width:100%;font-style: italic">@_selectedType.Description</p>
+}
+
+<p class="mt-3">
+    Um dich für diese Schicht einzutragen, musst du dich kurz anmelden@(PublicOptions.AllowRegistration ? " oder registrieren" : "").
+    Danach landest du genau hier wieder und musst nur noch bestätigen.
+</p>
+
+<div class="row mb-3 mt-4">
+    <div class="col-md-12 text-right d-flex flex-wrap justify-content-end" style="gap: 8px">
+        <RadzenButton Icon="login" Text="Anmelden" ButtonStyle="ButtonStyle.Success"
+                      Disabled="@(_selectedType is null)" Click="@(() => Go(register: false))"/>
+        @if (PublicOptions.AllowRegistration)
+        {
+            <RadzenButton Icon="person_add" Text="Registrieren" ButtonStyle="ButtonStyle.Secondary"
+                          Disabled="@(_selectedType is null)" Click="@(() => Go(register: true))"/>
+        }
+        <RadzenButton Text="Abbrechen" ButtonStyle="ButtonStyle.Danger" Click="@(() => DialogService.Close(false))"/>
+    </div>
+</div>
+
+@code {
+    [Parameter, EditorRequired] public Guid LocationId { get; set; }
+    [Parameter, EditorRequired] public string LocationName { get; set; } = string.Empty;
+    [Parameter, EditorRequired] public Guid ContainerId { get; set; }
+
+    /// <summary>Slot start/end in UTC.</summary>
+    [Parameter, EditorRequired] public DateTime Start { get; set; }
+    [Parameter, EditorRequired] public DateTime End { get; set; }
+
+    [Parameter, EditorRequired] public IReadOnlyList<GetShiftTypesResponse> AvailableTypes { get; set; } = [];
+    [Parameter] public GetShiftTypesResponse? SelectedType { get; set; }
+
+    private GetShiftTypesResponse? _selectedType;
+
+    private TimeSpan TimeShift => _selectedType?.StartingTimeShift ?? TimeSpan.Zero;
+    private DateTime StartLocal => (Start + TimeShift).ToLocalTime();
+    private DateTime EndLocal => (End + TimeShift).ToLocalTime();
+
+    protected override void OnParametersSet()
+    {
+        _selectedType ??= AvailableTypes.FirstOrDefault(t => t.Id == SelectedType?.Id) ?? AvailableTypes.FirstOrDefault();
+    }
+
+    private async Task Go(bool register)
+    {
+        if (_selectedType is null)
+            return;
+        var claim = PendingShiftClaim.Create(LocationId, ContainerId, Start, _selectedType.Id, LocationName,
+            _selectedType.Name, DateTime.UtcNow);
+        await PendingClaims.SaveAsync(claim);
+        DialogService.Close(false);
+        PendingClaims.NavigateToLogin(claim.BuildReturnPath(StartLocal.Date), register);
+    }
+}

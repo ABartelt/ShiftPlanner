@@ -272,3 +272,34 @@ export interface SignalGroupResponse {
   id: string
   name: string
 }
+
+export type NotificationChannel = 'Telegram' | 'WhatsApp' | 'Signal' | 'Email'
+export interface NotificationChannelResponse {
+  channel: NotificationChannel
+  /** Masked, e.g. +49•••123 or m•••@example.org */
+  address: string
+  /** False after STOP/unsubscribe; linking again re-enables */
+  enabled: boolean
+  linkedAt: IsoDate
+}
+export interface GetNotificationSettingsResponse {
+  remindDayBefore: boolean
+  remindShortBefore: boolean
+  channels: NotificationChannelResponse[]
+  /** Channels this installation offers */
+  availableChannels: NotificationChannel[]
+}
+export interface UpdateNotificationSettingsRequest {
+  remindDayBefore: boolean
+  remindShortBefore: boolean
+}
+export interface CreateChannelLinkResponse {
+  channel: NotificationChannel
+  /** True when linked right away (e-mail); otherwise the user sends `code` to the bot */
+  linked: boolean
+  code?: string | null
+  expiresAt?: IsoDate | null
+  /** Opens the messenger with the bot, code prefilled where the app supports it */
+  deepLink?: string | null
+  instructions: string
+}

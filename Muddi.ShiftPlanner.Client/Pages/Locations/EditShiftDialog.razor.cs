@@ -1,4 +1,4 @@
-﻿using System.Net;
+using System.Net;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
@@ -31,6 +31,13 @@ public partial class EditShiftDialog
 		try
 		{
 			var auth = await AuthenticationState;
+			if (auth.User.Identity?.IsAuthenticated != true)
+			{
+				// Anonymous visitors use ClaimShiftLoginDialog; this dialog needs the token-backed API.
+				DialogService.Close(false);
+				return;
+			}
+
 			var container = await ShiftApi.GetContainer(EntityToEdit.ContainerId);
 			var dto = await ShiftService.GetAvailableShiftTypesAtTime(EntityToEdit.ContainerId, EntityToEdit.Start);
 			//Check User

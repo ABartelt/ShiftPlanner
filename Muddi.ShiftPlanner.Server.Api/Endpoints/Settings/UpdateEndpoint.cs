@@ -1,5 +1,6 @@
 using FastEndpoints;
 using Microsoft.EntityFrameworkCore;
+using Muddi.ShiftPlanner.Server.Api.Services;
 using Muddi.ShiftPlanner.Server.Database.Contexts;
 using Muddi.ShiftPlanner.Server.Database.Entities;
 using Muddi.ShiftPlanner.Shared.Entities;
@@ -12,8 +13,11 @@ namespace Muddi.ShiftPlanner.Server.Api.Endpoints.Settings;
 /// </summary>
 public class UpdateEndpoint : CrudEndpoint<UpdateAppSettingsRequest, EmptyResponse>
 {
-	public UpdateEndpoint(ShiftPlannerContext database) : base(database)
+	private readonly IAppSettingsProvider _settingsProvider;
+
+	public UpdateEndpoint(ShiftPlannerContext database, IAppSettingsProvider settingsProvider) : base(database)
 	{
+		_settingsProvider = settingsProvider;
 	}
 
 	protected override void CrudConfigure()
@@ -34,7 +38,8 @@ public class UpdateEndpoint : CrudEndpoint<UpdateAppSettingsRequest, EmptyRespon
 			StartTime = req.StartTime,
 			EndTime = req.EndTime,
 			Greeting = req.Greeting,
-			MemberName = req.MemberName
+			MemberName = req.MemberName,
+			PublicBrowsingEnabled = req.PublicBrowsingEnabled
 		};
 
 		if (entity is null)
@@ -49,6 +54,7 @@ public class UpdateEndpoint : CrudEndpoint<UpdateAppSettingsRequest, EmptyRespon
 		}
 
 		await Database.SaveChangesAsync(ct);
+		_settingsProvider.Invalidate();
 		return EmptyResponse.Instance;
 	}
 }

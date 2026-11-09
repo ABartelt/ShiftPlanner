@@ -1,17 +1,18 @@
 using System.Text.Json;
-using System.Text.Json.Serialization;
 using Muddi.ShiftPlanner.Shared.Api;
 using Muddi.ShiftPlanner.Shared.Contracts.v1.Requests;
+using Muddi.ShiftPlanner.Shared.Contracts.v1.Responses;
 using Muddi.ShiftPlanner.Shared.Entities;
 using Microsoft.JSInterop;
 
 namespace Muddi.ShiftPlanner.Client.Services;
 
 /// <summary>
-/// Provides app-wide settings (Title, Subtitle, Contact, StartTime, EndTime, Greeting, MemberName).
-/// Loads the values from the API once and caches them. If the API is unreachable
-/// (e.g. called before authentication) it falls back to <see cref="Defaults"/> without
-/// caching the failure, so a later call retries.
+/// Provides app-wide settings (Title, Subtitle, Contact, StartTime, EndTime, Greeting, MemberName, ...).
+/// Logged-in users load them from <c>GET /settings</c>; anonymous visitors from <c>GET /public/info</c>, which also
+/// tells whether public browsing is enabled at all. Both are loaded once and cached. If the API is unreachable
+/// the service falls back to <see cref="Defaults"/> (and "public browsing disabled") without caching the failure,
+/// so a later call retries.
 /// </summary>
 public class AppSettingsService
 {
@@ -28,9 +29,11 @@ public class AppSettingsService
 	};
 
 	private readonly IMuddiShiftApi _api;
+	private readonly IMuddiPublicShiftApi _publicApi;
 	private readonly IJSRuntime _jsRuntime;
 	private readonly ILogger<AppSettingsService> _logger;
 	private Lazy<Task<ApplicationSettings>> _lazySettings;
+	private Lazy<Task<GetPublicInfoResponse>> _lazyPublicInfo;
 
 
 	/// <summary>
@@ -43,16 +46,25 @@ public class AppSettingsService
 	/// </summary>
 	public ApplicationSettings Current { get; private set; } = Defaults;
 
-	public AppSettingsService(IMuddiShiftApi api, IJSRuntime jsRuntime, ILogger<AppSettingsService> logger)
+	/// <summary>
+	/// Whether the server allows anonymous browsing. Null until <see cref="GetPublicInfoAsync"/> succeeded once.
+	/// Intentionally not cached in localStorage: a stale "true" would flash public content after an admin turned it off.
+	/// </summary>
+	public bool? PublicBrowsingEnabled { get; private set; }
+
+	public AppSettingsService(IMuddiShiftApi api, IMuddiPublicShiftApi publicApi, IJSRuntime jsRuntime,
+		ILogger<AppSettingsService> logger)
 	{
 		_api = api;
+		_publicApi = publicApi;
 		_jsRuntime = jsRuntime;
 		_logger = logger;
 		_lazySettings = new Lazy<Task<ApplicationSettings>>(LoadAsync);
+		_lazyPublicInfo = new Lazy<Task<GetPublicInfoResponse>>(LoadPublicInfoAsync);
 	}
 
 	/// <summary>
-	/// Returns the current settings, loading them from the API once. Falls back to
+	/// Returns the current settings for a logged-in user, loading them from the API once. Falls back to
 	/// <see cref="Defaults"/> if the API is unreachable; the failed load is not cached,
 	/// so a later call retries instead of replaying the failure.
 	/// </summary>
@@ -72,6 +84,26 @@ public class AppSettingsService
 		}
 	}
 
+	/// <summary>
+	/// Anonymous entry point: flag, branding and current season from <c>GET /public/info</c>. Needs no token.
+	/// On failure returns "disabled" so the app degrades to the usual login redirect.
+	/// </summary>
+	public async ValueTask<GetPublicInfoResponse> GetPublicInfoAsync()
+	{
+		var lazy = _lazyPublicInfo;
+		try
+		{
+			return await lazy.Value;
+		}
+		catch (Exception ex)
+		{
+			_logger.LogWarning(ex, "Failed to load public info");
+			if (_lazyPublicInfo == lazy)
+				_lazyPublicInfo = new Lazy<Task<GetPublicInfoResponse>>(LoadPublicInfoAsync);
+			return new GetPublicInfoResponse { PublicBrowsingEnabled = false };
+		}
+	}
+
 	public async Task UpdateAsync(ApplicationSettings settings)
 	{
 		await _api.UpdateAppSettings(new UpdateAppSettingsRequest
@@ -82,11 +114,13 @@ public class AppSettingsService
 			StartTime = settings.StartTime,
 			EndTime = settings.EndTime,
 			Greeting = settings.Greeting,
-			MemberName = settings.MemberName
+			MemberName = settings.MemberName,
+			PublicBrowsingEnabled = settings.PublicBrowsingEnabled
 		});
 
 		// Re-fetch so callers and the SettingsChanged event see the persisted values.
 		_lazySettings = new Lazy<Task<ApplicationSettings>>(LoadAsync);
+		_lazyPublicInfo = new Lazy<Task<GetPublicInfoResponse>>(LoadPublicInfoAsync);
 		await _lazySettings.Value;
 	}
 
@@ -96,6 +130,19 @@ public class AppSettingsService
 		SetCurrent(response.Settings);
 		await SaveToLocalStorageAsync(response.Settings);
 		return response.Settings;
+	}
+
+	private async Task<GetPublicInfoResponse> LoadPublicInfoAsync()
+	{
+		var info = await _publicApi.GetInfo();
+		PublicBrowsingEnabled = info.PublicBrowsingEnabled;
+		if (info.Settings is { } settings)
+		{
+			SetCurrent(settings);
+			await SaveToLocalStorageAsync(settings);
+		}
+
+		return info;
 	}
 
 	private async Task SaveToLocalStorageAsync(ApplicationSettings settings)

@@ -40,6 +40,7 @@ SHIFT_PLANNER_KEYCLOAK_URL=https://your-keycloak-url.com
 SHIFT_PLANNER_KEYCLOAK_REALM=muddi
 SHIFT_PLANNER_API_URL=https://your-api-endpoint.org
 SHIFT_PLANNER_CLIENT_URL=https://your-client-url.com
+SHIFT_PLANNER_ALLOW_REGISTRATION=false
 SHIFT_PLANNER_CLIENT_ID=shift-planner-server-api
 SHIFT_PLANNER_CLIENT_SECRET=<from-keycloak-step-4>
 KEYCLOAK_POSTGRES_PASSWORD=<secure-password>
@@ -50,6 +51,10 @@ KEYCLOAK_ADMIN_PASSWORD=<secure-password>
 - `SHIFT_PLANNER_KEYCLOAK_REALM` - the realm name (default `muddi`). You can rename it (e.g. `my-cool-party`) — the API and client pick it up from `.env` automatically
 - `SHIFT_PLANNER_API_URL` - your public API URL (used by the client app)
 - `SHIFT_PLANNER_CLIENT_URL` - your public client URL (used as the API's CORS origin)
+- `SHIFT_PLANNER_ALLOW_REGISTRATION` - `true` or `false` (default). Only controls whether "Registrieren" buttons are
+  shown to visitors; set it to `true` when your realm allows self-registration (see 4.5). Anonymous browsing of free
+  shifts itself is off by default and is enabled by a super-admin in the app under
+  *Admin → Einstellungen → Öffentliche Schichtübersicht*.
 
 > **Existing deployments (breaking):** The `MUDDI_*` env vars have been renamed to `SHIFT_PLANNER_*`,
 > and the new URL/realm vars have been added — update your `.env` accordingly.
@@ -194,3 +199,28 @@ Customize the client appearance in `config/muddi/customization/`:
 - `customization.css` - Custom styles
 - `customization.json` - Custom configuration
 - `favicon.png` - Custom favicon
+
+---
+
+## Optional: Shift Reminders
+
+The `shift-planner-alerting` service reminds volunteers 24 hours and 30 minutes before each shift via
+Telegram, WhatsApp (Twilio), Signal (signal-cli-rest-api) or e-mail. Users link their channels under
+"Erinnerungen" in the client. It is off by default; enable it with the `notifications` compose profile:
+
+```bash
+docker compose --profile notifications up -d
+```
+
+Fill in the channels you want in `.env`; a channel is only offered to users when its handle is set:
+
+| Channel  | `.env`                                                                                      |
+|----------|---------------------------------------------------------------------------------------------|
+| Telegram | `SHIFT_PLANNER_TELEGRAM_BOT_TOKEN` (from @BotFather) and `SHIFT_PLANNER_TELEGRAM_BOT_USERNAME` |
+| WhatsApp | `SHIFT_PLANNER_TWILIO_ACCOUNT_SID`, `SHIFT_PLANNER_TWILIO_AUTH_TOKEN`, `SHIFT_PLANNER_WHATSAPP_NUMBER` |
+| Signal   | `SHIFT_PLANNER_SIGNAL_API_URL` (your signal-cli-rest-api container) and `SHIFT_PLANNER_SIGNAL_NUMBER` |
+| E-mail   | `SHIFT_PLANNER_EMAIL_ENABLED=true` plus `SHIFT_PLANNER_SMTP_*`; uses the verified Keycloak address |
+
+`SHIFT_PLANNER_ALERTING_URL` is the public URL of the alerting service (port 5282). It is needed for the
+Twilio webhook (`/webhooks/twilio/whatsapp`) and the release/unsubscribe links in e-mails; Telegram and Signal work
+without a public URL.

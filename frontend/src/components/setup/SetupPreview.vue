@@ -54,7 +54,7 @@ function zone(id: Exclude<PreviewFocus, null>): string {
 function tag(id: Exclude<PreviewFocus, null>): string {
   return cn(
     'font-display text-[0.625rem] font-semibold tracking-[0.18em] uppercase transition-colors',
-    props.focus === id ? 'text-primary' : 'text-muted-foreground/70',
+    props.focus === id ? 'text-primary-ink' : 'text-muted-foreground/70',
   )
 }
 </script>
@@ -101,7 +101,7 @@ function tag(id: Exclude<PreviewFocus, null>): string {
 
       <!-- container -->
       <div :class="cn('mt-3 rounded-lg transition-shadow', zone('container'))">
-        <div class="rounded-lg border border-white/10 p-2" :style="{ background: color }">
+        <div class="rounded-lg border border-foreground/10 p-2" :style="{ background: color }">
           <div class="mb-1.5 flex items-center justify-between px-1">
             <span :class="tag('container')">{{ t('wizard_gl_container') }}</span>
             <span class="text-xs font-semibold tabular-nums"
@@ -196,7 +196,7 @@ function tag(id: Exclude<PreviewFocus, null>): string {
           >
             <p
               :class="
-                cn('text-sm font-semibold', focus === g.id ? 'text-primary' : 'text-foreground')
+                cn('text-sm font-semibold', focus === g.id ? 'text-primary-ink' : 'text-foreground')
               "
             >
               {{ g.label }}

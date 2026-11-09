@@ -20,7 +20,7 @@ const auth = useAuth()
         <RouterLink
           to="/"
           class="flex h-full flex-col items-center justify-center gap-1 text-[11px] font-medium text-muted-foreground"
-          exact-active-class="text-primary"
+          exact-active-class="text-primary-ink"
         >
           <Home class="size-[22px]" /><span>{{ t('nav_start') }}</span>
         </RouterLink>
@@ -29,7 +29,7 @@ const auth = useAuth()
         <RouterLink
           to="/locations"
           class="flex h-full flex-col items-center justify-center gap-1 text-[11px] font-medium text-muted-foreground"
-          active-class="text-primary"
+          active-class="text-primary-ink"
         >
           <MapPin class="size-[22px]" /><span>{{ t('nav_locations') }}</span>
         </RouterLink>
@@ -38,7 +38,7 @@ const auth = useAuth()
         <RouterLink
           to="/my-shifts"
           class="flex h-full flex-col items-center justify-center gap-1 text-[11px] font-medium text-muted-foreground"
-          active-class="text-primary"
+          active-class="text-primary-ink"
         >
           <CalendarCheck class="size-[22px]" /><span>{{ t('nav_my_shifts') }}</span>
         </RouterLink>
@@ -47,7 +47,7 @@ const auth = useAuth()
         <RouterLink
           to="/admin/locations"
           class="flex h-full flex-col items-center justify-center gap-1 text-[11px] font-medium text-muted-foreground"
-          active-class="text-primary"
+          active-class="text-primary-ink"
         >
           <ShieldCheck class="size-[22px]" /><span>{{ t('nav_admin') }}</span>
         </RouterLink>

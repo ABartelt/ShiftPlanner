@@ -1,4 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
+using System.Diagnostics.CodeAnalysis;
 using System.Security.Claims;
 using FastEndpoints;
 using FluentValidation.Results;
@@ -41,8 +41,16 @@ public static class ShiftService
 		};
 	}
 
+	/// <summary>
+	/// Free/total places per shift type for the slot starting at <paramref name="startTime"/>.
+	/// </summary>
+	/// <param name="treatBlockedAsOccupied">
+	/// Blocked placeholder shifts (admin <c>BlockReason</c>) normally do not reduce the available count, because the
+	/// authenticated roster shows them separately. Anonymous callers never see the roster, so for them a blocked
+	/// place must count as occupied; otherwise it would be offered as free.
+	/// </param>
 	public static IEnumerable<GetShiftTypesCountResponse> GetAvailableShiftTypes(this ShiftContainerEntity container,
-		DateTime startTime)
+		DateTime startTime, bool treatBlockedAsOccupied = false)
 	{
 		startTime = startTime.ToUniversalTime();
 		var endTime = startTime + container.Framework.TimePerShift;
@@ -52,7 +60,7 @@ public static class ShiftService
 		foreach (var shift in container.Shifts.Where(s => s.Start == startTime))
 		{
 			var q = counter.Single(c => c.Type.Id == shift.Type.Id);
-			if (!shift.IsBlocked)
+			if (!shift.IsBlocked || treatBlockedAsOccupied)
 			{
 				q.AvailableCount--;
 			}

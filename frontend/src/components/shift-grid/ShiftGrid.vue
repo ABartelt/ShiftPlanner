@@ -117,14 +117,15 @@ function cardStyle(card: ShiftCard): Record<string, string> {
       return { background: 'transparent', borderColor: color, color }
     case 'blocked':
       return {
-        color: '#777',
+        color: 'var(--shift-blocked-foreground)',
         borderColor: color,
-        backgroundImage: 'repeating-linear-gradient(45deg, #3a3a3a 0 10px, #2a2a2a 10px 20px)',
+        backgroundImage:
+          'repeating-linear-gradient(45deg, var(--shift-blocked-stripe-a) 0 10px, var(--shift-blocked-stripe-b) 10px 20px)',
       }
     case 'mine':
       return {
         background: color,
-        borderColor: '#fff',
+        borderColor: 'var(--shift-mine-border)',
         color: '#fff',
         outline: '2px dashed #fff',
         outlineOffset: '-4px',

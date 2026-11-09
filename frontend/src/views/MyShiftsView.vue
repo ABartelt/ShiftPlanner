@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { CalendarArrowDown } from '@lucide/vue'
+import { Bell, CalendarArrowDown } from '@lucide/vue'
 import PageHeader from '@/components/PageHeader.vue'
 import ShiftTile from '@/components/ShiftTile.vue'
 import { Button } from '@/components/ui/button'
@@ -45,6 +45,9 @@ watch(() => season.currentId, load, { immediate: true })
   <div class="mx-auto max-w-3xl">
     <PageHeader :title="t('my_shifts_title')">
       <template #actions>
+        <Button variant="outline" size="sm" as-child>
+          <RouterLink to="/notifications"><Bell /> {{ t('nav_notifications') }}</RouterLink>
+        </Button>
         <Button
           variant="outline"
           size="sm"

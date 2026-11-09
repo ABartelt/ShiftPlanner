@@ -1,21 +1,20 @@
 using FastEndpoints;
-using Microsoft.EntityFrameworkCore;
-using Muddi.ShiftPlanner.Server.Database.Contexts;
+using Muddi.ShiftPlanner.Server.Api.Services;
 
 namespace Muddi.ShiftPlanner.Server.Api.Endpoints.Settings;
 
 /// <summary>
-/// Returns app-wide settings (Title, Subtitle, Contact, StartTime, EndTime, Greeting, MemberName) stored in the database.
-/// If no settings exist in the DB, returns defaults.
+/// Returns app-wide settings (Title, Subtitle, Contact, StartTime, EndTime, Greeting, MemberName, PublicBrowsingEnabled)
+/// stored in the database. If no settings exist in the DB, returns defaults.
 /// </summary>
 public class GetEndpoint : EndpointWithoutRequest<GetAppSettingsResponse>
 {
-	public GetEndpoint(ShiftPlannerContext database)
-	{
-		Database = database;
-	}
+	private readonly IAppSettingsProvider _settings;
 
-	private ShiftPlannerContext Database { get; }
+	public GetEndpoint(IAppSettingsProvider settings)
+	{
+		_settings = settings;
+	}
 
 	public override void Configure()
 	{
@@ -24,10 +23,9 @@ public class GetEndpoint : EndpointWithoutRequest<GetAppSettingsResponse>
 
 	public override async Task<GetAppSettingsResponse> ExecuteAsync(CancellationToken ct)
 	{
-		var entity = await Database.AppSettings.FirstOrDefaultAsync(ct);
 		return new GetAppSettingsResponse
 		{
-			Settings = entity?.Settings ?? new()
+			Settings = await _settings.GetAsync(ct)
 		};
 	}
 }
