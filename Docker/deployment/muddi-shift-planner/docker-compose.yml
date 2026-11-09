@@ -97,6 +97,19 @@ services:
     ports:
       - "25432:5432"
 
+  # Optional: Signal sender for "Schichten bewerben". Start with: docker compose --profile signal up -d
+  # The REST API has no authentication, so it must only be reachable inside this network (no ports).
+  signal-api:
+    profiles: ["signal"]
+    restart: unless-stopped
+    image: bbernhard/signal-cli-rest-api:latest
+    environment:
+      MODE: native
+    volumes:
+      - signal_data:/home/.local/share/signal-cli
+    networks:
+      - shiftplanner
+
   # Sends shift reminders via Telegram / WhatsApp / Signal / e-mail. Opt-in:
   #   docker compose --profile notifications up -d
   # Fill in the channels you want in .env; channels without credentials stay off.
@@ -137,6 +150,7 @@ services:
 volumes:
   postgres_data:
   keycloak_data:
+  signal_data:
 
 networks:
   shiftplanner:

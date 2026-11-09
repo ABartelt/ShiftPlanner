@@ -2,8 +2,11 @@ using System.Data.Common;
 using System.Reflection;
 using FastEndpoints;
 using FastEndpoints.Swagger;
+using Microsoft.AspNetCore.DataProtection;
 using Muddi.ShiftPlanner.Server.Api.Extensions;
 using Muddi.ShiftPlanner.Server.Api.Services;
+using Muddi.ShiftPlanner.Server.Api.Services.Promotion;
+using Muddi.ShiftPlanner.Server.Database.Contexts;
 using Muddi.ShiftPlanner.Server.Database.Extensions;
 using NSwag;
 using NSwag.AspNetCore;
@@ -46,6 +49,19 @@ builder.Services.AddMemoryCache();
 builder.Services.AddTransient<ExcelService>();
 builder.Services.AddScoped<IAppSettingsProvider, AppSettingsProvider>();
 builder.Services.AddSingleton<NotificationChannelSettings>();
+
+// Promotion of open shifts to messengers. Channel secrets are encrypted with keys stored in the database.
+builder.Services.AddDataProtection()
+	.SetApplicationName("Muddi.ShiftPlanner")
+	.PersistKeysToDbContext<ShiftPlannerContext>();
+builder.Services.AddHttpClient(PromotionSenders.HttpClientName, c => c.Timeout = TimeSpan.FromSeconds(20))
+	// Request URLs contain bot tokens and webhook secrets, so they must not be logged.
+	.RemoveAllLoggers();
+builder.Services.AddSingleton(TimeProvider.System);
+builder.Services.AddSingleton<PromotionSecrets>();
+builder.Services.AddSingleton<PromotionSenders>();
+builder.Services.AddScoped<PromotionService>();
+builder.Services.AddHostedService<PromotionScheduler>();
 
 var app = builder.Build();
 
