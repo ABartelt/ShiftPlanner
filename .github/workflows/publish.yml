@@ -81,9 +81,12 @@ jobs:
         run: |
           VERSION=${{ env.FULL_VERSION }}
           CLEAN_VERSION=${VERSION#v}
-          sed -i "s/AssemblyVersion(\"[^\"]*\")/AssemblyVersion(\"$CLEAN_VERSION\")/g" ${{ matrix.app.path }}/Properties/Assembly.cs
+          # AssemblyVersion/AssemblyFileVersion only accept major.minor.build[.revision]; the pre-release suffix
+          # (e.g. 1.8.0-tohoop.1) goes into AssemblyInformationalVersion only
+          NUMERIC_VERSION=${CLEAN_VERSION%%-*}
+          sed -i "s/AssemblyVersion(\"[^\"]*\")/AssemblyVersion(\"$NUMERIC_VERSION\")/g" ${{ matrix.app.path }}/Properties/Assembly.cs
           sed -i "s/AssemblyInformationalVersion(\"[^\"]*\")/AssemblyInformationalVersion(\"$CLEAN_VERSION\")/g" ${{ matrix.app.path }}/Properties/Assembly.cs
-          sed -i "s/AssemblyFileVersion(\"[^\"]*\")/AssemblyFileVersion(\"$CLEAN_VERSION\")/g" ${{ matrix.app.path }}/Properties/Assembly.cs
+          sed -i "s/AssemblyFileVersion(\"[^\"]*\")/AssemblyFileVersion(\"$NUMERIC_VERSION\")/g" ${{ matrix.app.path }}/Properties/Assembly.cs
 
       - name: Update version in index.html (manual dispatch)
         if: "!startsWith(github.ref, 'refs/tags/release/v') && matrix.app.name == 'client'"
