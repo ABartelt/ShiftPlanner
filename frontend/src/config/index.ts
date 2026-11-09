@@ -12,7 +12,10 @@ export interface AppConfig {
   brand: {
     name: string
     primaryColor: string
+    /** Logo for the dark theme, e.g. the white tohoop wordmark. */
     logoUrl: string
+    /** Logo for the light theme, e.g. the black wordmark; falls back to logoUrl. */
+    logoLightUrl: string
     footer: string
     footerUrl: string
   }
@@ -24,7 +27,14 @@ const defaults: AppConfig = {
   apiBaseUrl: '/api',
   timeZone: 'Europe/Berlin',
   scopes: 'openid profile email',
-  brand: { name: 'Schichtplaner', primaryColor: '', logoUrl: '', footer: '', footerUrl: '' },
+  brand: {
+    name: 'Schichtplaner',
+    primaryColor: '',
+    logoUrl: '',
+    logoLightUrl: '',
+    footer: '',
+    footerUrl: '',
+  },
 }
 
 let current: AppConfig | null = null

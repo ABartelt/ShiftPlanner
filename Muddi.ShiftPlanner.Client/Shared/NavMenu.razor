@@ -1,4 +1,4 @@
-﻿@using Muddi.ShiftPlanner.Shared.BlazorWASM
+@using Muddi.ShiftPlanner.Shared.BlazorWASM
 @inject ShiftService ShiftService;
 @inject NavigationManager NavigationManager;
 <RadzenSidebar Expanded="Expanded" ExpandedChanged="ExpandedChanged" class="demos-sidebar">
@@ -6,16 +6,13 @@
         <div class="position-relative h-100">
             <RadzenPanelMenu Match="NavLinkMatch.Prefix">
                 <RadzenPanelMenuItem Text="Start" Path="/"></RadzenPanelMenuItem>
-                <AuthorizeView>
-                    <Authorized>
-                        @foreach (var location in ShiftService.GetAllShiftLocations())
-                        {
-                            <RadzenPanelMenuItem
-                                Text="@($"{location.Name} ({location.PercentageAlreadyAssignedShifts}%)")"
-                                Path="@location.Path"/>
-                        }
-                    </Authorized>
-                </AuthorizeView>
+                @* Location list is mode-aware (public API for anonymous visitors), so no AuthorizeView needed *@
+                @foreach (var location in ShiftService.GetAllShiftLocations())
+                {
+                    <RadzenPanelMenuItem
+                        Text="@($"{location.Name} ({location.PercentageAlreadyAssignedShifts}%)")"
+                        Path="@location.Path"/>
+                }
                 <AuthorizeView Policy="@Policies.IsAdmin">
                     <RadzenPanelMenuItem Text="Admin">
                         <RadzenPanelMenuItem Text="Seasons" Path="/admin/seasons"></RadzenPanelMenuItem>

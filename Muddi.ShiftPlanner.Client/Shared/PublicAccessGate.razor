@@ -1,0 +1,65 @@
+@using Microsoft.AspNetCore.Authorization
+@inject AppSettingsService AppSettingsService
+@inject AuthenticationStateProvider AuthenticationStateProvider
+
+@*
+    Decides whether a page may render for the current visitor:
+      - pages with [Authorize]      -> untouched, AuthorizeRouteView handles them
+      - pages with [AllowAnonymous] -> untouched (help, authentication, ...)
+      - pages with neither (Index, LocationPage, ...) are "public-gated": logged-in users always,
+        anonymous visitors only while the server reports PublicBrowsingEnabled; otherwise the usual login redirect.
+*@
+@if (_allowed is null)
+{
+    <div class="muddi-plain-content mt-5">
+        <LoadingSpinner/>
+    </div>
+}
+else if (_allowed == true)
+{
+    @ChildContent
+}
+else
+{
+    <RedirectToLogin/>
+}
+
+@code {
+    [Parameter, EditorRequired] public required RouteData RouteData { get; set; }
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+
+    private bool? _allowed;
+    private Type? _evaluatedPageType;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        var pageType = RouteData.PageType;
+        if (_evaluatedPageType == pageType && _allowed is not null)
+            return;
+        _evaluatedPageType = pageType;
+
+        if (pageType.IsDefined(typeof(AuthorizeAttribute), true) || pageType.IsDefined(typeof(AllowAnonymousAttribute), true))
+        {
+            _allowed = true;
+            return;
+        }
+
+        // This sits outside AuthorizeRouteView, which is what cascades Task<AuthenticationState> in this app,
+        // so ask the provider directly.
+        var state = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        if (state.User.Identity?.IsAuthenticated == true)
+        {
+            _allowed = true;
+            return;
+        }
+
+        if (AppSettingsService.PublicBrowsingEnabled is { } known)
+        {
+            _allowed = known;
+            return;
+        }
+
+        _allowed = null;
+        _allowed = (await AppSettingsService.GetPublicInfoAsync()).PublicBrowsingEnabled;
+    }
+}

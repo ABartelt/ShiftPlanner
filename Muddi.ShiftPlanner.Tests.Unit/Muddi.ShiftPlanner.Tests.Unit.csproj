@@ -23,6 +23,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\Muddi.ShiftPlanner.Client\Muddi.ShiftPlanner.Client.csproj" />
+      <ProjectReference Include="..\Muddi.ShiftPlanner.Services.Alerting\Muddi.ShiftPlanner.Services.Alerting.csproj" />
       <ProjectReference Include="..\Muddi.ShiftPlanner.Shared\Muddi.ShiftPlanner.Shared.csproj" />
     </ItemGroup>
 

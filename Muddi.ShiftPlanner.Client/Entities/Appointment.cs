@@ -33,6 +33,11 @@ public class DayAppointment : Appointment
 		{
 			Title = shift.Type.Name + "\nFREI";
 		}
+		else if (shift.User == Mappers.OccupiedEmployee)
+		{
+			// Anonymous view: the place is taken, by whom is none of the visitor's business
+			Title = shift.Type.Name + "\nBesetzt";
+		}
 		else if (shift.Duration < TimeSpan.FromMinutes(60))
 		{
 			Title = shift.Type.Name;

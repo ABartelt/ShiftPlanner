@@ -1,6 +1,8 @@
-﻿using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Authorization;
 using Muddi.ShiftPlanner.Client.Services;
 using Muddi.ShiftPlanner.Shared.Api;
+using Muddi.ShiftPlanner.Shared.Contracts.v1;
 using Muddi.ShiftPlanner.Shared.Contracts.v1.Responses;
 using Muddi.ShiftPlanner.Shared.Entities;
 using Radzen;
@@ -23,10 +25,17 @@ public partial class StatisticsDashboardComponent : ComponentBase, IDisposable
 	[Inject] public required TooltipService TooltipService { get; set; }
 	[Inject] public required IMuddiShiftApi ShiftApi { get; set; }
 	[Inject] public required ShiftService ShiftService { get; set; }
+	[CascadingParameter] public required Task<AuthenticationState> AuthStateTask { get; set; }
+
+	/// <summary>The member count comes from an admin-only endpoint; everybody else gets the shift numbers only.</summary>
+	private bool CanSeeMembers { get; set; }
 
 
 	protected override async Task OnInitializedAsync()
 	{
+		var authState = await AuthStateTask;
+		CanSeeMembers = authState.User.IsInRole(ApiRoles.Admin);
+		await ShiftService.InitializedTask;
 		ShiftService.OnSeasonChanged += RefreshData;
 		await LoadDashboardData(ShiftService.CurrentSeason);
 	}
@@ -48,13 +57,7 @@ public partial class StatisticsDashboardComponent : ComponentBase, IDisposable
 
 		try
 		{
-			var request = new GetShiftTypesCountRequest
-			{
-				SeasonId = season.Id,
-				IncludeNonAvailable = true
-			};
-			var users = await ShiftApi.GetAllEmployees();
-			var allAvailableShifts = await ShiftApi.GetAvailableShiftTypes(request);
+			var allAvailableShifts = await ShiftService.GetAllShiftTypeCountsAsync(includeNonAvailable: true);
 
 			var totalShiftHours = CalculateTotalTime(allAvailableShifts);
 
@@ -66,7 +69,19 @@ public partial class StatisticsDashboardComponent : ComponentBase, IDisposable
 				TotalShiftsCount += resp.TotalCount;
 			}
 
-			TotalUsers = users.Count().ToString();
+			if (CanSeeMembers)
+			{
+				try
+				{
+					var users = await ShiftApi.GetAllEmployees();
+					TotalUsers = users.Count().ToString();
+				}
+				catch (Exception ex)
+				{
+					Logger.LogWarning(ex, "Could not load member count");
+				}
+			}
+
 			TotalShifts = (TotalShiftsCount - AvailableCount).ToString();
 			TotalDays = totalShiftHours.TotalDays.ToString("N1");
 			TotalTimeSpan = totalShiftHours;

@@ -1,6 +1,7 @@
 using System.Reflection;
 using System.Reflection.Metadata;
 using Muddi.ShiftPlanner.Server.Api.Endpoints.Seasons;
+using Muddi.ShiftPlanner.Shared.Contracts.v1;
 using Muddi.ShiftPlanner.Shared.Contracts.v1.Requests;
 using Muddi.ShiftPlanner.Shared.Contracts.v1.Responses;
 using Muddi.ShiftPlanner.Shared.Contracts.v1.Responses.Seasons;
@@ -196,6 +197,26 @@ public interface IMuddiShiftApi
 	[Put("/settings")]
 	[Headers("Authorization: Bearer")]
 	Task UpdateAppSettings(UpdateAppSettingsRequest request);
+
+	#endregion
+
+	#region notifications
+
+	[Get("/me/notifications")]
+	[Headers("Authorization: Bearer")]
+	Task<GetNotificationSettingsResponse> GetNotificationSettings();
+
+	[Put("/me/notifications")]
+	[Headers("Authorization: Bearer")]
+	Task UpdateNotificationSettings(UpdateNotificationSettingsRequest request);
+
+	[Post("/me/notifications/channels/{channel}/link")]
+	[Headers("Authorization: Bearer")]
+	Task<CreateChannelLinkResponse> CreateNotificationChannelLink(NotificationChannel channel);
+
+	[Delete("/me/notifications/channels/{channel}")]
+	[Headers("Authorization: Bearer")]
+	Task DeleteNotificationChannel(NotificationChannel channel);
 
 	#endregion
 }

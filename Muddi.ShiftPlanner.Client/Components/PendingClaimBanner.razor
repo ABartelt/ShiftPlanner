@@ -1,0 +1,58 @@
+@using Muddi.ShiftPlanner.Client.Entities
+@inject PendingShiftClaimService PendingClaims
+@inject NavigationManager NavigationManager
+
+@*
+    Reminds a visitor of the shift they picked before login: shown when they cancelled at Keycloak, or landed
+    somewhere else after login (e.g. e-mail verification opened a new tab).
+*@
+@if (_claim is { } claim)
+{
+    <RadzenAlert AlertStyle="AlertStyle.Info" Variant="Variant.Flat" Shade="Shade.Lighter" AllowClose="false" class="mb-3">
+        <div class="d-flex flex-wrap align-items-center" style="gap: 8px">
+            <span>
+                Du wolltest dich für „@claim.ShiftTypeName“ am @claim.Start.ToLocalTime().ToString("dd.MM. HH:mm")
+                in @claim.LocationName eintragen.
+            </span>
+            @if (_isAuthenticated)
+            {
+                <RadzenButton Size="ButtonSize.Small" Icon="arrow_forward" Text="Weiter" Click="Continue"/>
+            }
+            else
+            {
+                <RadzenButton Size="ButtonSize.Small" Icon="login" Text="Jetzt anmelden und eintragen" Click="Continue"/>
+            }
+            <RadzenButton Size="ButtonSize.Small" ButtonStyle="ButtonStyle.Light" Text="Verwerfen" Click="Discard"/>
+        </div>
+    </RadzenAlert>
+}
+
+@code {
+    [CascadingParameter] public required Task<AuthenticationState> AuthStateTask { get; set; }
+
+    private PendingShiftClaim? _claim;
+    private bool _isAuthenticated;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _isAuthenticated = (await AuthStateTask).User.Identity?.IsAuthenticated == true;
+        _claim = await PendingClaims.TryGetAsync();
+    }
+
+    private void Continue()
+    {
+        if (_claim is null)
+            return;
+        var path = _claim.BuildReturnPath(_claim.Start.ToLocalTime().Date);
+        if (_isAuthenticated)
+            NavigationManager.NavigateTo(path);
+        else
+            PendingClaims.NavigateToLogin(path);
+    }
+
+    private async Task Discard()
+    {
+        await PendingClaims.ClearAsync();
+        _claim = null;
+    }
+}

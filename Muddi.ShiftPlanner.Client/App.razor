@@ -5,21 +5,23 @@
 	<Found Context="routeData">
 		@if (ShowContent)
 		{
-			<AuthorizeRouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)">
-				<NotAuthorized>
-					@if (context.User.Identity?.IsAuthenticated != true)
-					{
-						<RedirectToLogin/>
-					}
-					else
-					{
-						<p role="alert">Du hast keine Erlaubnis diese Resource zu sehen.</p>
-					}
-				</NotAuthorized>
-				<Authorizing>
-					<LoadingSpinner/>
-				</Authorizing>
-			</AuthorizeRouteView>
+			<PublicAccessGate RouteData="@routeData">
+				<AuthorizeRouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)">
+					<NotAuthorized>
+						@if (context.User.Identity?.IsAuthenticated != true)
+						{
+							<RedirectToLogin/>
+						}
+						else
+						{
+							<p role="alert">Du hast keine Erlaubnis diese Resource zu sehen.</p>
+						}
+					</NotAuthorized>
+					<Authorizing>
+						<LoadingSpinner/>
+					</Authorizing>
+				</AuthorizeRouteView>
+			</PublicAccessGate>
 		}
 		else
 		{

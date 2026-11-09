@@ -137,7 +137,7 @@ async function remove(): Promise<void> {
     <form class="space-y-4" @submit.prevent="save">
       <p
         v-if="container && hasShifts"
-        class="rounded-lg border border-amber/50 bg-amber/10 p-2 text-sm"
+        class="rounded-lg border border-orange/50 bg-orange/10 p-2 text-sm"
       >
         {{ t('admin_container_affected', { count: shiftCount }) }}
       </p>

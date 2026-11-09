@@ -576,7 +576,7 @@ const chipClass = (on: boolean) =>
                     i === step
                       ? 'bg-primary text-primary-foreground'
                       : i < step
-                        ? 'bg-primary/15 text-primary'
+                        ? 'bg-primary/15 text-primary-ink'
                         : 'bg-surface-raised text-muted-foreground',
                   )
                 "
@@ -769,7 +769,7 @@ const chipClass = (on: boolean) =>
                 :class="choiceClass(!useExistingFramework)"
                 @click="draft.existingFrameworkId = ''"
               >
-                <Sparkles class="mt-0.5 size-4 shrink-0 text-primary" />
+                <Sparkles class="mt-0.5 size-4 shrink-0 text-primary-ink" />
                 <span>
                   <span class="block text-sm font-medium">{{ t('wizard_framework_new') }}</span>
                   <span class="block text-xs text-muted-foreground">{{
@@ -1008,7 +1008,7 @@ const chipClass = (on: boolean) =>
                       :aria-pressed="draft.color === c"
                       :class="
                         cn(
-                          'size-8 rounded-full border border-white/20 transition-shadow',
+                          'size-8 rounded-full border border-foreground/20 transition-shadow',
                           draft.color === c && 'ring-2 ring-primary ring-offset-2 ring-offset-card',
                         )
                       "
@@ -1024,7 +1024,7 @@ const chipClass = (on: boolean) =>
             <!-- timeline of one block -->
             <section class="space-y-2">
               <div
-                class="flex overflow-hidden rounded-lg border border-white/10 p-1"
+                class="flex overflow-hidden rounded-lg border border-foreground/10 p-1"
                 :style="{ background: draft.color }"
               >
                 <div
@@ -1078,7 +1078,7 @@ const chipClass = (on: boolean) =>
             <div
               class="flex items-baseline gap-3 rounded-lg border border-primary/30 bg-primary/10 px-4 py-3"
             >
-              <span class="font-display text-3xl font-semibold tabular-nums text-primary">{{
+              <span class="font-display text-3xl font-semibold tabular-nums text-primary-ink">{{
                 totalCapacity
               }}</span>
               <span class="text-sm">{{ t('wizard_capacity', totalCapacity) }}</span>
@@ -1098,7 +1098,7 @@ const chipClass = (on: boolean) =>
                             'rounded-full px-1.5 py-px text-[0.625rem] font-semibold tracking-wide uppercase',
                             item.state === 'existing'
                               ? 'bg-surface-raised text-muted-foreground'
-                              : 'bg-primary/15 text-primary',
+                              : 'bg-primary/15 text-primary-ink',
                           )
                         "
                         >{{
@@ -1112,7 +1112,7 @@ const chipClass = (on: boolean) =>
                   </div>
                   <LoaderCircle
                     v-if="item.state === 'running'"
-                    class="size-4 shrink-0 animate-spin text-primary"
+                    class="size-4 shrink-0 animate-spin text-primary-ink"
                   />
                   <CircleCheck
                     v-else-if="item.state === 'done'"

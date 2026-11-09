@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import BrandText from '@/components/BrandText.vue'
 import { onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { settingsApi } from '@/api'
@@ -21,11 +22,13 @@ onMounted(async () => {
 
 <template>
   <div class="mx-auto max-w-2xl p-6">
-    <RouterLink to="/" class="text-sm text-primary underline">« {{ t('nav_start') }}</RouterLink>
-    <h1 class="mt-4 text-2xl font-semibold">{{ t('help_title') }}</h1>
+    <RouterLink to="/" class="text-sm text-primary-ink underline"
+      >« {{ t('nav_start') }}</RouterLink
+    >
+    <h1 class="headline mt-4 text-3xl"><BrandText :text="t('help_title')" /></h1>
     <p class="mt-3">
       {{ t('help_contact') }}
-      <a :href="settings.contactLink" class="text-primary underline">{{
+      <a :href="settings.contactLink" class="text-primary-ink underline">{{
         settings.settings.contact || t('error_contact_fallback')
       }}</a>
     </p>

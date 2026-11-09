@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import BrandText from '@/components/BrandText.vue'
 import { onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
@@ -24,9 +25,9 @@ onMounted(async () => {
 <template>
   <div class="grid min-h-dvh place-items-center p-6 text-center">
     <div v-if="error">
-      <h1 class="text-xl font-semibold">{{ t('error_title') }}</h1>
+      <h1 class="headline text-2xl"><BrandText :text="t('error_title')" /></h1>
       <p class="mt-2 text-sm text-muted-foreground">{{ error }}</p>
-      <RouterLink to="/" class="mt-4 inline-block text-primary underline">{{
+      <RouterLink to="/" class="mt-4 inline-block text-primary-ink underline">{{
         t('btn_retry')
       }}</RouterLink>
     </div>

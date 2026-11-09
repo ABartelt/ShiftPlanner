@@ -1,8 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Muddi.ShiftPlanner.Server.Api.Extensions;
 using Muddi.ShiftPlanner.Server.Api.Services;
 using Muddi.ShiftPlanner.Server.Database.Contexts;
-using Muddi.ShiftPlanner.Shared.Contracts.v1;
 
 namespace Muddi.ShiftPlanner.Server.Api.Endpoints.Locations.Shifts;
 
@@ -23,36 +20,14 @@ public class
 	public override async Task<List<GetShiftTypesCountResponse>?> CrudExecuteAsync(
 		GetAvailableShiftsForLocationRequest request, CancellationToken ct)
 	{
-		var start = request.StartTime?.ToUniversalTime() ?? DateTime.UnixEpoch;
-		var end = request.EndTime?.ToUniversalTime() ?? DateTime.MaxValue;
-		var location = await Database.ShiftLocations
-			.CheckAdminOnly(User)
-			.Include(l => l.Containers.Where(c => c.Start >= start && c.Start < end))
-			.ThenInclude(c => c.Framework)
-			.ThenInclude(f => f.ShiftTypeCounts)
-			.ThenInclude(stc => stc.ShiftType)
-			.Include(l => l.Containers.Where(c => c.Start >= start && c.Start < end))
-			.ThenInclude(c => c.Shifts)
-			.ThenInclude(s => s.Type)
-			.AsSingleQuery()
-			.AsNoTracking()
-			.FirstOrDefaultAsync(l => l.Id == request.LocationId, cancellationToken: ct);
-		if (location is null)
+		var shifts = await Database.GetAvailableShiftTypesForLocationAsync(request.LocationId, request.StartTime,
+			request.EndTime, request.Limit, ScheduleAccess.FromPrincipal(User), ct);
+		if (shifts is null)
 		{
 			await Send.NotFoundAsync("location", ct);
 			return null;
 		}
 
-
-		var shifts = location.Containers
-			.SelectMany(container => container.GetStartTimes()
-				.SelectMany(container.GetAvailableShiftTypes));
-
-		shifts = shifts.OrderBy(x => x.Start).ThenByDescending(x => x.AvailableCount);
-
-		if (request.Limit > 0)
-			shifts = shifts.Take(request.Limit);
-
-		return shifts.ToList();
+		return shifts;
 	}
 }
