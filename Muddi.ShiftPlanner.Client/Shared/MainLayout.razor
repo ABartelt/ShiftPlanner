@@ -180,8 +180,14 @@
 
             _locations = ShiftService.GetAllShiftLocations().ToList();
         }
-        catch (AccessTokenNotAvailableException)
+        catch (AccessTokenNotAvailableException ex)
         {
+            ex.Redirect();
+        }
+        catch (Exception ex) when (ex.InnerException is AccessTokenNotAvailableException tokenEx)
+        {
+            // Refit wraps the exception; refresh token expired -> log in again
+            tokenEx.Redirect();
         }
         catch (Exception ex)
         {

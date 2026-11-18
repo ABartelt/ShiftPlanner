@@ -62,12 +62,23 @@ public class JsonTests
 	}
 
 	[Fact]
-	public void ShouldSerializeEndTimePastMidnight_AsDotNetTimeSpan()
+	public void ShouldSerializeEndTimePastMidnight_AsLenientHours()
 	{
-		// The Vue client parses and writes "d.hh:mm:ss" (frontend/src/domain/time.ts), so 26:00 must round-trip as 1.02:00:00
+		// LenientTimeSpanConverter writes hours past 23 as "26:00:00"; the Vue client (frontend/src/domain/time.ts) reads that.
 		var json = JsonSerializer.Serialize(new ApplicationSettings());
 
-		json.Should().Contain("\"EndTime\":\"1.02:00:00\"");
+		json.Should().Contain("\"EndTime\":\"26:00:00\"");
+		JsonSerializer.Deserialize<ApplicationSettings>(json)!.EndTime.TotalHours.Should().Be(26);
+	}
+
+	[Theory]
+	[InlineData("26:00:00")]
+	[InlineData("1.02:00:00")]
+	public void ShouldDeserializeEndTimePastMidnight_InBothFormats(string endTime)
+	{
+		// The Vue client still writes "d.hh:mm:ss" (minutesToDuration), the Blazor client writes "26:00:00"; both must parse.
+		var json = "{\"EndTime\":\"" + endTime + "\"}";
+
 		JsonSerializer.Deserialize<ApplicationSettings>(json)!.EndTime.TotalHours.Should().Be(26);
 	}
 }
