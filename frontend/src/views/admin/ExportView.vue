@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { Download } from '@lucide/vue'
+import { Download, Printer } from '@lucide/vue'
+import { useRouter } from 'vue-router'
 import PageHeader from '@/components/PageHeader.vue'
 import FormField from '@/components/FormField.vue'
 import { Button } from '@/components/ui/button'
@@ -19,6 +20,7 @@ import { useErrors } from '@/composables/useErrors'
 import { downloadBlob, slug } from '@/domain/download'
 
 const { t } = useI18n()
+const router = useRouter()
 const locations = useLocationsStore()
 const { report } = useErrors()
 const locationId = ref('')
@@ -46,6 +48,12 @@ async function download(): Promise<void> {
     busy.value = false
   }
 }
+
+function openPoster(): void {
+  if (!locationId.value) return
+  const href = router.resolve({ name: 'admin-poster', params: { id: locationId.value } }).href
+  window.open(href, '_blank', 'noopener')
+}
 </script>
 
 <template>
@@ -69,6 +77,12 @@ async function download(): Promise<void> {
       <Button :disabled="!locationId || busy" @click="download"
         ><Download /> {{ t('admin_export_download') }}</Button
       >
+      <div class="space-y-2 border-t border-border pt-4">
+        <p class="text-sm text-muted-foreground">{{ t('admin_export_poster_hint') }}</p>
+        <Button variant="secondary" :disabled="!locationId" @click="openPoster"
+          ><Printer /> {{ t('admin_export_poster') }}</Button
+        >
+      </div>
     </div>
   </div>
 </template>
