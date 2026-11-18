@@ -4,7 +4,7 @@ import { useI18n } from 'vue-i18n'
 import { cn } from '@/lib/utils'
 import type { ShiftCard } from '@/domain/shifts'
 import { typeColor } from '@/domain/shifts'
-import { minutesIntoDay, minutesToClock } from '@/domain/time'
+import { formatTime, minutesIntoDay, minutesToClock } from '@/domain/time'
 import type { DayCardPlacement, GridBand, WeekBlock } from './types'
 
 /**
@@ -371,8 +371,8 @@ function dayLabel(day: string): string {
           }}</span>
           <span v-else class="w-full truncate">{{ card.employeeName }}</span>
           <span v-if="row.rowEnd - row.rowStart >= 6" class="text-[10px] opacity-90">
-            {{ minutesToClock(minutesIntoDay(card.start, firstDay) + card.offsetMinutes) }}–{{
-              minutesToClock(minutesIntoDay(card.end, firstDay) + card.offsetMinutes)
+            {{ formatTime(card.start, card.offsetMinutes) }}–{{
+              formatTime(card.end, card.offsetMinutes)
             }}
           </span>
         </button>
