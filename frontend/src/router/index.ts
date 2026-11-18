@@ -6,6 +6,8 @@ declare module 'vue-router' {
     public?: boolean
     admin?: boolean
     superAdmin?: boolean
+    /** rendered without the app shell (print views); auth guards still apply */
+    bare?: boolean
   }
 }
 
@@ -93,6 +95,13 @@ export const router = createRouter({
       name: 'admin-export',
       component: () => import('@/views/admin/ExportView.vue'),
       meta: { admin: true },
+    },
+    {
+      path: '/admin/export/poster/:id',
+      name: 'admin-poster',
+      component: () => import('@/views/admin/PosterView.vue'),
+      props: true,
+      meta: { admin: true, bare: true },
     },
     {
       path: '/admin/promote',

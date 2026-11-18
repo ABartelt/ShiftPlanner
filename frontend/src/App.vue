@@ -50,7 +50,7 @@ watch(
 <template>
   <Toaster position="top-center" rich-colors close-button :theme="theme" />
   <UpdatePrompt />
-  <RouterView v-if="route.meta.public" />
+  <RouterView v-if="route.meta.public || route.meta.bare" />
   <AppShell v-else>
     <RouterView />
   </AppShell>
