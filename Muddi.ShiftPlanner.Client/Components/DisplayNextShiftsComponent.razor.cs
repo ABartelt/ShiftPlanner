@@ -55,7 +55,7 @@ public partial class DisplayNextShiftsComponent : IDisposable
 		}
 
 		var availableShifts = await ShiftService.GetAllAvailableShifts(12, DateTime.UtcNow);
-		_freeShifts = [..availableShifts.Select(s => s.ToAppointment())];
+		_freeShifts = [..availableShifts.Where(s => !s.IsBlocked).Select(s => s.ToAppointment())];
 		await InvokeAsync(StateHasChanged);
 	}
 

@@ -123,13 +123,14 @@ public sealed class PublicEndpointsTests
 	}
 
 	[Fact]
-	public async Task AuthenticatedAvailableTypes_KeepExistingBehaviour_BlockedDoesNotReduceAvailability()
+	public async Task AuthenticatedAvailableTypes_BlockedAlsoOccupiesSlot()
 	{
+		// Upstream fix (Muddi-Markt #87): a blocked place occupies a slot for everyone, not only for anonymous visitors.
 		var counts = await _factory.CreateClientWithRoles("viewer").GetAsync<List<GetShiftTypesCountResponse>>(
 			$"/locations/{TestData.HauptbarId}/get-all-available-shifts-types");
 		counts.Should().NotBeNull();
 		var slot2 = counts!.Single(c => c.Start == TestData.Slot2Start && c.Type.Id == TestData.ThekeTypeId);
-		slot2.AvailableCount.Should().Be(2, "logged-in users see blocked places separately in the roster");
+		slot2.AvailableCount.Should().Be(1, "a blocked place must not be offered as free to logged-in users either");
 	}
 
 	[Fact]

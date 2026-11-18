@@ -137,10 +137,9 @@ public static class ScheduleQueries
 		if (location is null)
 			return null;
 
-		var treatBlockedAsOccupied = !access.IsAuthenticated;
 		IEnumerable<GetShiftTypesCountResponse> shifts = location.Containers
 			.SelectMany(container => container.GetStartTimes()
-				.SelectMany(startTime => container.GetAvailableShiftTypes(startTime, treatBlockedAsOccupied)))
+				.SelectMany(startTime => container.GetAvailableShiftTypes(startTime)))
 			.Where(s => access.IsAdmin || !s.Type.OnlyAssignableByAdmin)
 			.OrderBy(x => x.Start)
 			.ThenByDescending(x => x.AvailableCount);
@@ -176,12 +175,11 @@ public static class ScheduleQueries
 			return [];
 
 		var startingFromUtc = startingFrom?.ToUniversalTime();
-		var treatBlockedAsOccupied = !access.IsAuthenticated;
 
 		IEnumerable<GetShiftTypesCountResponse> shifts = locations
 			.SelectMany(l => l.Containers
 				.SelectMany(container => container.GetStartTimes()
-					.SelectMany(startTime => container.GetAvailableShiftTypes(startTime, treatBlockedAsOccupied))))
+					.SelectMany(startTime => container.GetAvailableShiftTypes(startTime))))
 			.Where(s => (includeNonAvailable || s.AvailableCount > 0) &&
 			            (access.IsAdmin || !s.Type.OnlyAssignableByAdmin))
 			.OrderBy(st => st.Start);

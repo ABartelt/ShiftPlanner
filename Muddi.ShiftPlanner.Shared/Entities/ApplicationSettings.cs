@@ -24,12 +24,14 @@ public record ApplicationSettings
 	/// <summary>
 	/// Daily start time for shift containers. Defaults to 08:00.
 	/// </summary>
-	public TimeSpan StartTime { get; set; } = new(8, 0, 0);
+ [System.Text.Json.Serialization.JsonConverter(typeof(LenientTimeSpanConverter))]
+ 	public TimeSpan StartTime { get; set; } = new(8, 0, 0);
 
 	/// <summary>
 	/// Daily end time for shift containers. Defaults to 26:00 (02:00 the next day).
 	/// </summary>
-	public TimeSpan EndTime { get; set; } = new(26, 0, 0);
+ [System.Text.Json.Serialization.JsonConverter(typeof(LenientTimeSpanConverter))]
+ 	public TimeSpan EndTime { get; set; } = new(26, 0, 0);
 
 	/// <summary>
 	/// Greeting word (e.g. "Moin").
